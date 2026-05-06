@@ -97,17 +97,20 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 ## Roadmap complète
 
+> **Contexte :** Site usage personnel (usage solo). Pas de monitoring ni d'auth multi-utilisateurs nécessaires à court terme.
+
 | Phase | Contenu | Statut |
 |-------|---------|--------|
 | Phase 1 | Fondations (Supabase, secrets, CI base) | ✅ Done |
 | Phase 2 | Scraper France Travail + CI/CD complet | ✅ Done |
-| Phase 3 | Frontend Next.js (ce spec) | 🔄 En cours |
-| Phase 4 | Nouvelles sources (APEC, Indeed, Hellowork) | ⏳ Backlog |
-| Phase 5 | **Refonte UI/UX complète** (design system Figma, tokens, composants accessibles WCAG AA, tests utilisateurs) | ⏳ Backlog |
-| Phase 6 | Monitoring, alertes cron, observabilité Supabase | ⏳ Backlog |
-| Phase 7 | Compte utilisateur + alertes email | ⏳ Backlog |
+| Phase 3 | Frontend Next.js — job board + recherche/filtres (ce spec) | 🔄 En cours |
+| Phase 4 | **Tableau de suivi de candidatures** — kanban personnel (Intéressé → Postulé → Relancé → Entretien → Refus/Accepté), notes par offre, stocké dans Supabase | ⏳ Backlog |
+| Phase 5 | Nouvelles sources de données (APEC, Indeed, Hellowork) | ⏳ Backlog |
+| Phase 6 | **Refonte UI/UX complète** (design system Figma, tokens, composants accessibles WCAG AA, tests utilisateurs) | ⏳ Backlog |
 
-> **Note Phase 5 :** La Phase 3 utilise un design fonctionnel validé en brainstorming. La Phase 5 reprendra avec les skills `ui-design-system`, `ux-researcher-designer` et `senior-frontend` pour une refonte complète avec personas, journey map, design tokens Figma, et audit WCAG.
+> **Note Phase 4 :** Le tableau de suivi sera une page `/suivi` avec un kanban drag-and-drop. Chaque colonne = statut de candidature. Les offres peuvent être ajoutées depuis la page principale (bouton "Suivre cette offre"). Données stockées dans une table `applications` Supabase liée à `offers`.
+
+> **Note Phase 6 :** La Phase 3 utilise un design fonctionnel validé en brainstorming. La Phase 6 reprendra avec les skills `ui-design-system`, `ux-researcher-designer` et `senior-frontend` pour une refonte complète avec personas, journey map, design tokens Figma, et audit WCAG.
 
 ---
 
