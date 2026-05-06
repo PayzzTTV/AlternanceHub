@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  scraper-lint-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r scraper/requirements.txt
+
+      - name: Lint (flake8)
+        run: flake8 scraper/
+
+      - name: SAST (Bandit)
+        run: bandit -r scraper/ -ll --exit-zero
+
+      - name: Tests (pytest + coverage)
+        run: |
+          pytest scraper/tests/ --cov=scraper --cov-report=xml
+          coverage report --fail-under=70
+
+  security:
+    runs-on: ubuntu-latest
+    needs: [scraper-lint-test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan secrets (Gitleaks)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Docker scraper (test)
+        run: docker build -t alternancehub-scraper:test ./scraper
+
+      - name: Scan CVE image scraper (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: "alternancehub-scraper:test"
+          format: "sarif"
+          output: "trivy-results.sarif"
+          severity: "CRITICAL,HIGH"
+          exit-code: "1"
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: "trivy-results.sarif"
