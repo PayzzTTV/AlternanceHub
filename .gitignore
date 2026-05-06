@@ -16,6 +16,9 @@ __pycache__/
 coverage.xml
 .venv/
 
+# Brainstorming artifacts
+.superpowers/
+
 # OS / logs
 .DS_Store
 *.log
