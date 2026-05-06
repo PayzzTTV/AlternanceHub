@@ -1,0 +1,21 @@
+node_modules/
+.next/
+dist/
+
+# Environment files (keep template versioned)
+.env
+.env.local
+.env.*
+!.env.example
+
+# Python cache and tooling
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+coverage.xml
+.venv/
+
+# OS / logs
+.DS_Store
+*.log
