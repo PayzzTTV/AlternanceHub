@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
     .from('offers')
     .select('id,title,company,location,tags,description,desired_skills')
     .eq('is_active', true)
+    .not('description', 'is', null)
     .limit(500)
 
   if (error || !offers?.length) {
