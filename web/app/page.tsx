@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getOffers } from '@/lib/offers'
 import StatsBar from '@/components/StatsBar'
 import OffersGrid from '@/components/OffersGrid'
@@ -15,9 +16,17 @@ export default async function HomePage() {
         <span className="text-lg font-bold text-slate-100">
           Alternance<span className="text-blue-500">Hub</span>
         </span>
-        <span className="bg-blue-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
-          {offers.length} offres
-        </span>
+        <div className="flex items-center gap-6">
+          <Link
+            href="/suivi"
+            className="text-sm text-slate-400 hover:text-slate-200 transition-colors"
+          >
+            Suivi
+          </Link>
+          <span className="bg-blue-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+            {offers.length} offres
+          </span>
+        </div>
       </nav>
 
       {/* Hero */}
