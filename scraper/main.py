@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import time
 from typing import Any
 
 from dotenv import load_dotenv
@@ -44,13 +45,14 @@ def build_records(
 
 
 def upsert_offers(
-    client: Client, records: list[dict[str, Any]], batch_size: int = 50
+    client: Client, records: list[dict[str, Any]], batch_size: int = 25
 ) -> None:
     if not records:
         return
     for i in range(0, len(records), batch_size):
         batch = records[i:i + batch_size]
         client.table("offers").upsert(batch, on_conflict="hash").execute()
+        time.sleep(0.5)
 
 
 def main() -> None:
