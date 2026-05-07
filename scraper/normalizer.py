@@ -44,12 +44,67 @@ def _safe_string(value: Any, default: str = "") -> str:
     return text if text else default
 
 
+# Maps lowercase keyword → canonical tag label
+_KEYWORD_TAGS: list[tuple[str, str]] = [
+    ("cybersécurité", "Cybersécurité"),
+    ("cybersecurité", "Cybersécurité"),
+    ("cybersecurity", "Cybersécurité"),
+    ("sécurité informatique", "Cybersécurité"),
+    ("sécurité si", "Cybersécurité"),
+    ("pentest", "Pentest"),
+    ("test d'intrusion", "Pentest"),
+    (" soc ", "SOC"),
+    ("analyste soc", "SOC"),
+    ("siem", "SIEM"),
+    ("firewall", "Firewall"),
+    ("réseau", "Réseau"),
+    ("network", "Réseau"),
+    ("cloud", "Cloud"),
+    ("linux", "Linux"),
+    ("python", "Python"),
+    ("devsecops", "DevSecOps"),
+    ("devops", "DevOps"),
+    ("audit", "Audit SI"),
+    ("forensic", "Forensic"),
+    ("iso 27001", "ISO 27001"),
+    ("anssi", "ANSSI"),
+    (" grc ", "GRC"),
+    ("gouvernance", "GRC"),
+    ("azure", "Azure"),
+    (" aws ", "AWS"),
+    ("kubernetes", "Kubernetes"),
+    ("docker", "Docker"),
+    ("splunk", "Splunk"),
+    ("microsoft 365", "Microsoft 365"),
+    ("active directory", "Active Directory"),
+]
+
+
 def _extract_tags(raw: dict[str, Any]) -> list[str]:
-    tags = raw.get("tags")
-    if isinstance(tags, list) and tags:
-        return [str(tag).strip() for tag in tags if str(tag).strip()]
-    # Fallback tag set for cybersecurity alternance niche.
-    return ["cybersecurity", "alternance"]
+    # If explicit tags already provided (e.g. future sources), use them
+    explicit = raw.get("tags")
+    if isinstance(explicit, list) and explicit:
+        clean = [str(t).strip() for t in explicit if str(t).strip()]
+        if clean:
+            return clean
+
+    # Build a single searchable text from title + description + skills
+    title = str(raw.get("title") or "").lower()
+    description = str(raw.get("description") or "").lower()
+    skills = " ".join(str(s) for s in (raw.get("desired_skills") or [])).lower()
+    haystack = f" {title} {description} {skills} "
+
+    found: list[str] = []
+    seen: set[str] = set()
+    for keyword, label in _KEYWORD_TAGS:
+        if keyword in haystack and label not in seen:
+            found.append(label)
+            seen.add(label)
+
+    if raw.get("remote"):
+        found.append("Télétravail")
+
+    return found if found else ["Informatique"]
 
 
 def _extract_company(raw: dict[str, Any]) -> str:

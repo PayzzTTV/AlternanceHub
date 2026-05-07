@@ -26,4 +26,4 @@ def test_normalizer_uses_defaults() -> None:
     normalized = normalize_offer(raw, source_name="france_travail_rss")
     assert normalized.title == "Untitled offer"
     assert normalized.company == "Unknown company"
-    assert normalized.tags == ["cybersecurity", "alternance"]
+    assert normalized.tags == ["Informatique"]
