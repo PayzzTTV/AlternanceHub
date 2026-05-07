@@ -1,10 +1,14 @@
 import { getApplications } from '@/lib/applications'
 import KanbanBoard from '@/components/KanbanBoard'
+import NavUser from '@/components/NavUser'
+import { createSupabaseServerClient } from '@/lib/supabase'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
 export default async function SuiviPage() {
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
   const applications = await getApplications()
 
   const total = applications.length
@@ -21,13 +25,14 @@ export default async function SuiviPage() {
         <Link href="/" className="text-lg font-bold text-slate-100">
           Alternance<span className="text-blue-500">Hub</span>
         </Link>
-        <div className="flex gap-6 text-sm">
+        <div className="flex items-center gap-6 text-sm">
           <Link href="/" className="text-slate-400 hover:text-slate-200 transition-colors">
             Offres
           </Link>
           <Link href="/suivi" className="text-blue-500 font-semibold">
             Suivi
           </Link>
+          {user && <NavUser email={user.email ?? ''} />}
         </div>
       </nav>
 

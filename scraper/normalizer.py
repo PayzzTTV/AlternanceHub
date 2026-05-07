@@ -19,6 +19,8 @@ class NormalizedOffer:
     source: str
     source_url: str
     published_at: str | None
+    description: str | None = None
+    desired_skills: list[str] | None = None
     is_active: bool = True
 
     def to_record(self) -> dict[str, Any]:
@@ -33,6 +35,8 @@ class NormalizedOffer:
             "source": self.source,
             "source_url": self.source_url,
             "published_at": self.published_at,
+            "description": self.description,
+            "desired_skills": self.desired_skills or [],
             "is_active": self.is_active,
         }
 
@@ -142,6 +146,9 @@ def normalize_offer(raw: dict[str, Any], source_name: str) -> NormalizedOffer:
     if not source_url:
         raise ValueError("Missing source_url/link in raw offer")
 
+    raw_skills = raw.get("desired_skills") or []
+    skills = [str(s).strip() for s in raw_skills if str(s).strip()]
+
     return NormalizedOffer(
         title=title,
         company=company,
@@ -155,6 +162,8 @@ def normalize_offer(raw: dict[str, Any], source_name: str) -> NormalizedOffer:
         published_at=_to_iso8601(
             raw.get("published_at") or raw.get("published")
         ),
+        description=_safe_string(raw.get("description")) or None,
+        desired_skills=skills or None,
     )
 
 

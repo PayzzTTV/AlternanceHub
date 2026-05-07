@@ -21,12 +21,15 @@ export async function addApplication(offer: {
   source_url: string | null
 }): Promise<void> {
   const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return
   await supabase.from('applications').insert({
     offer_id: offer.id,
     title: offer.title,
     company: offer.company,
     source_url: offer.source_url,
     status: 'interested',
+    user_id: user.id,
   })
   revalidatePath('/suivi')
 }
