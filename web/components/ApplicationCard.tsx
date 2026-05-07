@@ -22,7 +22,8 @@ export default function ApplicationCard({ application, onDelete, onUpdate }: Pro
   return (
     <>
       <div
-        className="bg-[#0F172A] border border-[#334155] rounded-lg p-3 cursor-grab hover:border-blue-500 transition-colors"
+        onClick={() => setModalOpen(true)}
+        className="bg-[#0F172A] border border-[#334155] rounded-lg p-3 cursor-pointer hover:border-blue-500 transition-colors"
         data-application-id={application.id}
       >
         <p className="text-sm font-semibold text-slate-100 leading-snug mb-0.5">
@@ -48,27 +49,19 @@ export default function ApplicationCard({ application, onDelete, onUpdate }: Pro
           </p>
         )}
 
-        <div className="flex items-center justify-between">
-          {application.source_url ? (
+        {application.source_url && (
+          <div className="mt-1">
             <a
               href={application.source_url}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
               className="text-xs text-blue-400 hover:underline"
             >
               ↗ Voir l&apos;offre
             </a>
-          ) : (
-            <span />
-          )}
-          <button
-            onClick={() => setModalOpen(true)}
-            className="text-xs text-blue-400 hover:text-blue-300 px-1"
-            aria-label="✏️"
-          >
-            ✏️
-          </button>
-        </div>
+          </div>
+        )}
       </div>
 
       {modalOpen && (
