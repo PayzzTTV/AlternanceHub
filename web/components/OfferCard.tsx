@@ -1,6 +1,10 @@
-import Link from 'next/link'
+'use client'
+
+import { useState } from 'react'
 import type { Offer } from '@/types/offer'
 import FollowButton from '@/components/FollowButton'
+import OfferModal from '@/components/OfferModal'
+import { getMatchInsights } from '@/components/CVUploader'
 
 type Props = { offer: Offer; matchScore?: number }
 
@@ -32,15 +36,17 @@ function matchColor(score: number): string {
 }
 
 export default function OfferCard({ offer, matchScore }: Props) {
+  const [modalOpen, setModalOpen] = useState(false)
+  const insight = getMatchInsights()[offer.id]
+
   return (
+    <>
     <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-5 shadow flex flex-col gap-3 hover:border-blue-500 transition-colors">
       <div className="flex justify-between items-start gap-2">
-        <div>
-          <Link href={`/offres/${offer.id}`}>
-            <h3 className="text-base font-semibold text-slate-100 leading-snug hover:text-blue-400 transition-colors">
-              {offer.title}
-            </h3>
-          </Link>
+        <div className="cursor-pointer" onClick={() => setModalOpen(true)}>
+          <h3 className="text-base font-semibold text-slate-100 leading-snug hover:text-blue-400 transition-colors">
+            {offer.title}
+          </h3>
           <p className="text-sm text-slate-400 mt-0.5">{offer.company}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -89,16 +95,24 @@ export default function OfferCard({ offer, matchScore }: Props) {
               source_url: offer.source_url,
             }}
           />
-          <a
-            href={offer.source_url}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => setModalOpen(true)}
             className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition-colors"
           >
             Voir l&apos;offre →
-          </a>
+          </button>
         </div>
       </div>
     </div>
+
+    {modalOpen && (
+      <OfferModal
+        offer={offer}
+        matchScore={matchScore}
+        insight={insight}
+        onClose={() => setModalOpen(false)}
+      />
+    )}
+    </>
   )
 }

@@ -4,16 +4,18 @@ import { useRef, useState, useCallback, useEffect } from 'react'
 import Link from 'next/link'
 
 const SCORES_KEY = 'alternancehub_match_scores'
+const INSIGHTS_KEY = 'alternancehub_match_insights'
 const CV_TEXT_KEY = 'alternancehub_cv_text'
 const CV_NAME_KEY = 'alternancehub_cv_name'
 
 export function getMatchScores(): Record<string, number> {
   if (typeof window === 'undefined') return {}
-  try {
-    return JSON.parse(localStorage.getItem(SCORES_KEY) ?? '{}')
-  } catch {
-    return {}
-  }
+  try { return JSON.parse(localStorage.getItem(SCORES_KEY) ?? '{}') } catch { return {} }
+}
+
+export function getMatchInsights(): Record<string, { strengths: string[]; gaps: string[] }> {
+  if (typeof window === 'undefined') return {}
+  try { return JSON.parse(localStorage.getItem(INSIGHTS_KEY) ?? '{}') } catch { return {} }
 }
 
 async function extractPdfText(file: File): Promise<string> {
@@ -30,15 +32,14 @@ async function extractPdfText(file: File): Promise<string> {
   return pages.join('\n')
 }
 
-async function computeScores(cvText: string): Promise<Record<string, number>> {
+async function computeScores(cvText: string): Promise<{ scores: Record<string, number>; insights: Record<string, { strengths: string[]; gaps: string[] }> }> {
   const res = await fetch('/api/match', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ cvText }),
   })
   if (!res.ok) throw new Error('api')
-  const { scores } = await res.json()
-  return scores
+  return res.json()
 }
 
 export default function CVUploader() {
@@ -60,8 +61,9 @@ export default function CVUploader() {
         // Recompute if scores missing
         setState('loading')
         computeScores(savedText)
-          .then((scores) => {
+          .then(({ scores, insights }) => {
             localStorage.setItem(SCORES_KEY, JSON.stringify(scores))
+            localStorage.setItem(INSIGHTS_KEY, JSON.stringify(insights))
             setState('done')
             window.dispatchEvent(new CustomEvent('match-scores-updated'))
           })
@@ -80,11 +82,12 @@ export default function CVUploader() {
 
       if (!cvText.trim()) throw new Error('empty')
 
-      const scores = await computeScores(cvText)
+      const { scores, insights } = await computeScores(cvText)
 
       localStorage.setItem(CV_TEXT_KEY, cvText)
       localStorage.setItem(CV_NAME_KEY, file.name)
       localStorage.setItem(SCORES_KEY, JSON.stringify(scores))
+      localStorage.setItem(INSIGHTS_KEY, JSON.stringify(insights))
       setState('done')
       window.dispatchEvent(new CustomEvent('match-scores-updated'))
     } catch {
@@ -94,6 +97,7 @@ export default function CVUploader() {
 
   function handleReset() {
     localStorage.removeItem(SCORES_KEY)
+    localStorage.removeItem(INSIGHTS_KEY)
     localStorage.removeItem(CV_TEXT_KEY)
     localStorage.removeItem(CV_NAME_KEY)
     setFileName(null)
