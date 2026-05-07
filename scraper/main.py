@@ -43,10 +43,14 @@ def build_records(
     return list(deduped_records.values())
 
 
-def upsert_offers(client: Client, records: list[dict[str, Any]]) -> None:
+def upsert_offers(
+    client: Client, records: list[dict[str, Any]], batch_size: int = 50
+) -> None:
     if not records:
         return
-    client.table("offers").upsert(records, on_conflict="hash").execute()
+    for i in range(0, len(records), batch_size):
+        batch = records[i:i + batch_size]
+        client.table("offers").upsert(batch, on_conflict="hash").execute()
 
 
 def main() -> None:
