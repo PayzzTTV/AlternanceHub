@@ -47,7 +47,6 @@ export default function CVUploader() {
   const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [fileName, setFileName] = useState<string | null>(null)
 
-  // On mount: if CV is already saved, recompute scores silently
   useEffect(() => {
     const savedText = localStorage.getItem(CV_TEXT_KEY)
     const savedName = localStorage.getItem(CV_NAME_KEY)
@@ -58,7 +57,6 @@ export default function CVUploader() {
         setState('done')
         window.dispatchEvent(new CustomEvent('match-scores-updated'))
       } else {
-        // Recompute if scores missing
         setState('loading')
         computeScores(savedText)
           .then(({ scores, insights }) => {
@@ -106,11 +104,11 @@ export default function CVUploader() {
   }
 
   return (
-    <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-4 flex flex-col gap-3">
+    <div className="glass rounded-2xl p-4 flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold text-slate-100">Matching CV</p>
-          <p className="text-xs text-slate-400">
+          <p className="text-sm font-semibold text-white/85">Matching CV</p>
+          <p className="text-xs text-white/40">
             {state === 'done'
               ? 'Retourne sur les offres pour voir tes scores'
               : 'Upload ton CV pour voir ton % de correspondance sur chaque offre'}
@@ -119,7 +117,7 @@ export default function CVUploader() {
         {state === 'done' && (
           <button
             onClick={handleReset}
-            className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+            className="text-xs text-white/30 hover:text-white/60 transition-colors"
           >
             Effacer
           </button>
@@ -130,7 +128,7 @@ export default function CVUploader() {
         <>
           <button
             onClick={() => inputRef.current?.click()}
-            className="flex items-center justify-center gap-2 border-2 border-dashed border-[#334155] hover:border-blue-500 rounded-lg py-4 text-sm text-slate-400 hover:text-blue-400 transition-colors cursor-pointer"
+            className="flex items-center justify-center gap-2 border-2 border-dashed border-white/10 hover:border-indigo-500/50 rounded-xl py-4 text-sm text-white/35 hover:text-indigo-300 transition-all cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -149,7 +147,7 @@ export default function CVUploader() {
       )}
 
       {state === 'loading' && (
-        <div className="flex items-center gap-2 py-3 text-sm text-slate-400">
+        <div className="flex items-center gap-2 py-3 text-sm text-white/45">
           <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor"
@@ -165,10 +163,10 @@ export default function CVUploader() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            <span className="truncate max-w-[180px] text-slate-300">{fileName}</span>
+            <span className="truncate max-w-[180px] text-white/65">{fileName}</span>
             <span>· actif</span>
           </div>
-          <Link href="/" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+          <Link href="/" className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors">
             Voir les offres →
           </Link>
         </div>
@@ -181,7 +179,7 @@ export default function CVUploader() {
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           Erreur lors de l&apos;analyse
-          <button onClick={() => setState('idle')} className="underline text-slate-400 hover:text-slate-200">
+          <button onClick={() => setState('idle')} className="underline text-white/40 hover:text-white/70">
             Réessayer
           </button>
         </div>

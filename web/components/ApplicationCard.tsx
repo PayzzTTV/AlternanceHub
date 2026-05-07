@@ -37,23 +37,23 @@ export default function ApplicationCard({ application, onDelete, onUpdate }: Pro
     <>
       <div
         onClick={() => setModalOpen(true)}
-        className="bg-[#0F172A] border border-[#334155] rounded-lg p-3 cursor-pointer hover:border-blue-500 transition-colors"
+        className="glass rounded-xl p-3 cursor-pointer hover:bg-white/[0.08] hover:border-indigo-500/30 transition-all"
         data-application-id={application.id}
       >
         <div className="flex items-start justify-between gap-2 mb-0.5">
-          <p className="text-sm font-semibold text-slate-100 leading-snug">{application.title}</p>
+          <p className="text-sm font-semibold text-white/85 leading-snug">{application.title}</p>
           {matchScore !== undefined && (
-            <span className={`text-xs font-bold px-1.5 py-0.5 rounded shrink-0 ${
+            <span className={`text-xs font-bold px-1.5 py-0.5 rounded-lg shrink-0 ${
               matchScore >= 70 ? 'bg-emerald-500/20 text-emerald-400' :
               matchScore >= 40 ? 'bg-amber-500/20 text-amber-400' :
-              'bg-slate-700 text-slate-400'
+              'bg-white/5 text-white/35'
             }`}>{matchScore}%</span>
           )}
         </div>
-        <p className="text-xs text-slate-400 mb-2">{application.company}</p>
+        <p className="text-xs text-white/40 mb-2">{application.company}</p>
 
         {application.notes && (
-          <p className="text-xs text-slate-500 bg-[#1E293B] rounded p-1.5 mb-2 line-clamp-2">
+          <p className="text-xs text-white/35 bg-white/[0.03] border border-white/8 rounded-lg p-1.5 mb-2 line-clamp-2">
             {application.notes}
           </p>
         )}
@@ -63,7 +63,7 @@ export default function ApplicationCard({ application, onDelete, onUpdate }: Pro
             className={`text-xs mb-2 ${
               isUrgent(application.follow_up_date)
                 ? 'text-amber-400'
-                : 'text-slate-500'
+                : 'text-white/35'
             }`}
           >
             ⏰ {application.follow_up_date}
@@ -77,7 +77,7 @@ export default function ApplicationCard({ application, onDelete, onUpdate }: Pro
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}
-              className="text-xs text-blue-400 hover:underline"
+              className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
             >
               ↗ Voir l&apos;offre
             </a>

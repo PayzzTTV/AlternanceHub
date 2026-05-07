@@ -21,8 +21,8 @@ const STATUS_LABELS: Record<ApplicationStatus, string> = {
 }
 
 const STATUS_COLORS: Record<ApplicationStatus, string> = {
-  interested: 'border-slate-500 text-slate-300',
-  applied: 'border-blue-500 text-blue-300',
+  interested: 'border-white/20 text-white/60',
+  applied: 'border-indigo-500 text-indigo-300',
   followed_up: 'border-amber-500 text-amber-300',
   interview: 'border-emerald-500 text-emerald-300',
   accepted: 'border-emerald-400 text-emerald-200',
@@ -36,7 +36,6 @@ export default function ApplicationModal({ application, onClose, onDelete, onUpd
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [visible, setVisible] = useState(false)
 
-  // Slide-in au montage
   useEffect(() => {
     const t = requestAnimationFrame(() => setVisible(true))
     return () => cancelAnimationFrame(t)
@@ -75,23 +74,23 @@ export default function ApplicationModal({ application, onClose, onDelete, onUpd
     <>
       {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-40 transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`}
         onClick={close}
       />
 
       {/* Drawer */}
       <div
-        className={`fixed top-0 right-0 h-full w-full max-w-sm bg-[#0F172A] border-l border-[#334155] z-50 flex flex-col shadow-2xl transition-transform duration-300 ease-out ${visible ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed top-0 right-0 h-full w-full max-w-sm glass-strong border-l border-white/10 z-50 flex flex-col shadow-2xl transition-transform duration-300 ease-out ${visible ? 'translate-x-0' : 'translate-x-full'}`}
       >
         {/* Header */}
-        <div className="flex items-start justify-between px-5 py-4 border-b border-[#334155]">
+        <div className="flex items-start justify-between px-5 py-4 border-b border-white/8">
           <div className="flex-1 min-w-0">
-            <h2 className="text-base font-semibold text-slate-100 truncate">{application.title}</h2>
-            <p className="text-sm text-slate-400 truncate">{application.company}</p>
+            <h2 className="text-base font-semibold text-white/90 truncate">{application.title}</h2>
+            <p className="text-sm text-white/45 truncate">{application.company}</p>
           </div>
           <button
             onClick={close}
-            className="ml-3 shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-200 hover:bg-[#1E293B] transition-colors text-lg"
+            className="ml-3 shrink-0 w-8 h-8 flex items-center justify-center rounded-xl text-white/30 hover:text-white/75 hover:bg-white/8 transition-all text-lg"
             aria-label="Fermer"
           >
             ×
@@ -103,16 +102,16 @@ export default function ApplicationModal({ application, onClose, onDelete, onUpd
 
           {/* Statut — pills */}
           <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wide mb-2">Statut</p>
+            <p className="text-xs text-white/35 uppercase tracking-widest mb-2">Statut</p>
             <div className="grid grid-cols-2 gap-2">
               {(Object.keys(STATUS_LABELS) as ApplicationStatus[]).map((s) => (
                 <button
                   key={s}
                   onClick={() => setStatus(s)}
-                  className={`text-xs font-medium px-3 py-2 rounded-lg border transition-colors text-left ${
+                  className={`text-xs font-medium px-3 py-2 rounded-xl border transition-all text-left ${
                     status === s
-                      ? `${STATUS_COLORS[s]} bg-[#1E293B]`
-                      : 'border-[#334155] text-slate-500 hover:border-slate-500 hover:text-slate-300'
+                      ? `${STATUS_COLORS[s]} bg-white/8`
+                      : 'border-white/8 text-white/35 hover:border-white/20 hover:text-white/65'
                   }`}
                 >
                   {STATUS_LABELS[s]}
@@ -123,12 +122,12 @@ export default function ApplicationModal({ application, onClose, onDelete, onUpd
 
           {/* Notes */}
           <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wide mb-2">Notes</p>
+            <p className="text-xs text-white/35 uppercase tracking-widest mb-2">Notes</p>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={4}
-              className="w-full bg-[#1E293B] border border-[#334155] focus:border-blue-500 rounded-lg px-3 py-2.5 text-sm text-slate-100 resize-none outline-none transition-colors placeholder-slate-600"
+              className="w-full bg-white/5 border border-white/10 focus:border-indigo-500/60 rounded-xl px-3 py-2.5 text-sm text-white/85 resize-none outline-none transition-colors placeholder-white/20"
               placeholder="CV envoyé via LinkedIn, contact RH = …"
             />
           </div>
@@ -136,7 +135,7 @@ export default function ApplicationModal({ application, onClose, onDelete, onUpd
           {/* Calendrier date de relance */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs text-slate-500 uppercase tracking-wide">Date de relance</p>
+              <p className="text-xs text-white/35 uppercase tracking-widest">Date de relance</p>
               {followUpDate && (
                 <span className="text-xs text-amber-400 font-medium">
                   ⏰ {formatDateFR(followUpDate)}
@@ -152,7 +151,7 @@ export default function ApplicationModal({ application, onClose, onDelete, onUpd
               href={application.source_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-blue-400 hover:text-blue-300 hover:underline"
+              className="text-sm text-indigo-400 hover:text-indigo-300 transition-colors"
             >
               ↗ Voir l&apos;offre originale
             </a>
@@ -160,17 +159,17 @@ export default function ApplicationModal({ application, onClose, onDelete, onUpd
         </div>
 
         {/* Footer actions */}
-        <div className="px-5 py-4 border-t border-[#334155] flex flex-col gap-3">
+        <div className="px-5 py-4 border-t border-white/8 flex flex-col gap-3">
           <div className="flex gap-2">
             <button
               onClick={handleSave}
-              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors"
+              className="flex-1 bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-colors"
             >
               Enregistrer
             </button>
             <button
               onClick={close}
-              className="px-4 py-2.5 text-sm text-slate-400 hover:text-slate-200 border border-[#334155] rounded-lg transition-colors"
+              className="px-4 py-2.5 text-sm text-white/45 hover:text-white/75 border border-white/10 hover:border-white/20 rounded-xl transition-all"
             >
               Annuler
             </button>
@@ -185,11 +184,11 @@ export default function ApplicationModal({ application, onClose, onDelete, onUpd
             </button>
           ) : (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-400">Confirmer ?</span>
+              <span className="text-sm text-white/40">Confirmer ?</span>
               <button onClick={handleDelete} className="text-sm text-red-400 hover:text-red-300 font-semibold">
                 Oui, supprimer
               </button>
-              <button onClick={() => setConfirmDelete(false)} className="text-sm text-slate-500 hover:text-slate-300">
+              <button onClick={() => setConfirmDelete(false)} className="text-sm text-white/35 hover:text-white/65">
                 Annuler
               </button>
             </div>

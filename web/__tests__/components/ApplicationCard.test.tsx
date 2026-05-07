@@ -56,7 +56,7 @@ describe('ApplicationCard', () => {
   it('la date de relance est grise si plus de 3 jours', () => {
     render(<ApplicationCard application={{ ...base, follow_up_date: '2026-06-01' }} onDelete={onDelete} onUpdate={onUpdate} />)
     const dateEl = screen.getByText(/2026-06-01/)
-    expect(dateEl).toHaveClass('text-slate-500')
+    expect(dateEl).toHaveClass('text-white/35')
   })
 
   it('ouvre le drawer au clic sur la carte', async () => {

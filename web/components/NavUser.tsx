@@ -15,10 +15,10 @@ export default function NavUser({ email }: { email: string }) {
 
   return (
     <div className="flex items-center gap-3">
-      <span className="text-xs text-slate-400 hidden sm:block">{email}</span>
+      <span className="text-xs text-white/40 hidden sm:block">{email}</span>
       <button
         onClick={handleLogout}
-        className="text-xs text-slate-400 hover:text-slate-200 border border-[#334155] hover:border-slate-500 rounded-lg px-3 py-1.5 transition-colors"
+        className="text-xs text-white/50 hover:text-white/90 border border-white/10 hover:border-white/25 rounded-xl px-3 py-1.5 transition-all"
       >
         Déconnexion
       </button>

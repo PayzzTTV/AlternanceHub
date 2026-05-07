@@ -58,7 +58,6 @@ export default function OffersGrid({ offers }: Props) {
   }, [])
   const [page, setPage] = useState(1)
 
-  // Options dynamiques depuis les données
   const allLocations = useMemo(() => {
     const locs = offers.map((o) => o.location).filter(Boolean) as string[]
     return [...new Set(locs)].sort()
@@ -134,17 +133,17 @@ export default function OffersGrid({ offers }: Props) {
   return (
     <div>
       {/* Barre principale */}
-      <div className="bg-[#1E293B] border-b border-[#334155] px-8 py-4 flex flex-wrap gap-3 items-center">
-        <div className="flex rounded-lg overflow-hidden border-[1.5px] border-blue-500 shadow-[0_0_0_3px_rgba(59,130,246,0.15)] flex-1 min-w-[260px] max-w-lg">
+      <div className="glass border-b border-white/8 px-8 py-4 flex flex-wrap gap-3 items-center">
+        <div className="flex rounded-xl overflow-hidden border border-indigo-500/50 shadow-[0_0_0_3px_rgba(99,102,241,0.1)] flex-1 min-w-[260px] max-w-lg">
           <input
             type="text"
             value={query}
             onChange={(e) => { setQuery(e.target.value); setPage(1) }}
             placeholder="Rechercher titre, entreprise, ville…"
-            className="flex-1 px-4 py-2.5 bg-[#0F172A] text-slate-100 placeholder-slate-500 outline-none text-sm"
+            className="flex-1 px-4 py-2.5 bg-white/5 text-white/90 placeholder-white/25 outline-none text-sm"
           />
           <button
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 text-sm font-semibold transition-colors"
+            className="bg-indigo-500 hover:bg-indigo-400 text-white px-4 text-sm font-semibold transition-colors"
             onClick={() => setPage(1)}
             aria-label="Lancer la recherche"
           >
@@ -154,10 +153,10 @@ export default function OffersGrid({ offers }: Props) {
 
         <button
           onClick={() => { setTeletravailOnly(!teletravailOnly); setPage(1) }}
-          className={`px-3 py-2 rounded-full text-sm border transition-colors ${
+          className={`px-3 py-2 rounded-full text-sm border transition-all ${
             teletravailOnly
-              ? 'bg-[#1E3A5F] border-blue-500 text-[#93C5FD] font-medium'
-              : 'bg-[#0F172A] border-[#334155] text-slate-400 hover:border-blue-500'
+              ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-300 font-medium'
+              : 'bg-white/5 border-white/10 text-white/45 hover:border-white/25'
           }`}
         >
           🏠 Télétravail
@@ -166,7 +165,7 @@ export default function OffersGrid({ offers }: Props) {
         <select
           value={duration}
           onChange={(e) => { setDuration(e.target.value); setPage(1) }}
-          className="px-3 py-2 rounded-full text-sm bg-[#0F172A] border border-[#334155] text-slate-400 outline-none"
+          className="px-3 py-2 rounded-full text-sm bg-white/5 border border-white/10 text-white/45 outline-none"
         >
           <option value="">Durée : toutes</option>
           {allDurations.map((d) => (
@@ -174,18 +173,17 @@ export default function OffersGrid({ offers }: Props) {
           ))}
         </select>
 
-        {/* Bouton filtres avancés */}
         <button
           onClick={() => setShowAdvanced((v) => !v)}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm border transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm border transition-all ${
             showAdvanced || activeAdvancedCount > 0
-              ? 'bg-[#1E3A5F] border-blue-500 text-[#93C5FD]'
-              : 'bg-[#0F172A] border-[#334155] text-slate-400 hover:border-blue-500'
+              ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-300'
+              : 'bg-white/5 border-white/10 text-white/45 hover:border-white/25'
           }`}
         >
           ⚙ Filtres
           {activeAdvancedCount > 0 && (
-            <span className="bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center leading-none">
+            <span className="bg-indigo-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center leading-none">
               {activeAdvancedCount}
             </span>
           )}
@@ -194,7 +192,7 @@ export default function OffersGrid({ offers }: Props) {
 
         <button
           onClick={() => exportCsv(filtered)}
-          className="text-sm text-slate-400 border border-[#334155] hover:border-blue-500 hover:text-blue-400 px-3 py-2 rounded-full transition-colors"
+          className="text-sm text-white/40 border border-white/10 hover:border-indigo-500/40 hover:text-indigo-300 px-3 py-2 rounded-full transition-all"
           title="Exporter les offres filtrées en CSV"
         >
           ⬇ CSV
@@ -202,7 +200,7 @@ export default function OffersGrid({ offers }: Props) {
 
         <button
           onClick={resetFilters}
-          className="ml-auto text-sm text-slate-500 underline hover:text-slate-300"
+          className="ml-auto text-sm text-white/30 hover:text-white/60 transition-colors"
         >
           Réinitialiser
         </button>
@@ -210,16 +208,15 @@ export default function OffersGrid({ offers }: Props) {
 
       {/* Panneau filtres avancés */}
       {showAdvanced && (
-        <div className="bg-[#0F172A] border-b border-[#334155] px-8 py-5 flex flex-col gap-5">
-          {/* Localisation + Date */}
+        <div className="glass border-b border-white/8 px-8 py-5 flex flex-col gap-5">
           <div className="flex flex-wrap gap-4 items-end">
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="filter-location" className="text-xs text-slate-500 uppercase tracking-wide">Localisation</label>
+              <label htmlFor="filter-location" className="text-xs text-white/35 uppercase tracking-widest">Localisation</label>
               <select
                 id="filter-location"
                 value={location}
                 onChange={(e) => { setLocation(e.target.value); setPage(1) }}
-                className="px-3 py-2 rounded-lg text-sm bg-[#1E293B] border border-[#334155] text-slate-300 outline-none min-w-[180px]"
+                className="px-3 py-2 rounded-xl text-sm bg-white/5 border border-white/10 text-white/65 outline-none min-w-[180px]"
               >
                 <option value="">Toutes les villes</option>
                 {allLocations.map((loc) => (
@@ -229,7 +226,7 @@ export default function OffersGrid({ offers }: Props) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-slate-500 uppercase tracking-wide">Date de publication</label>
+              <label className="text-xs text-white/35 uppercase tracking-widest">Date de publication</label>
               <div className="flex gap-2">
                 {[
                   { label: 'Tout', value: '' },
@@ -240,10 +237,10 @@ export default function OffersGrid({ offers }: Props) {
                   <button
                     key={value}
                     onClick={() => { setPublishedAfter(value); setPage(1) }}
-                    className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${
+                    className={`px-3 py-1.5 rounded-xl text-xs border transition-all ${
                       publishedAfter === value
-                        ? 'bg-[#1E3A5F] border-blue-500 text-blue-300 font-medium'
-                        : 'bg-[#1E293B] border-[#334155] text-slate-400 hover:border-slate-500'
+                        ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-300 font-medium'
+                        : 'bg-white/5 border-white/10 text-white/40 hover:border-white/25'
                     }`}
                   >
                     {label}
@@ -253,10 +250,9 @@ export default function OffersGrid({ offers }: Props) {
             </div>
           </div>
 
-          {/* Tags */}
           {allTags.length > 0 && (
             <div className="flex flex-col gap-2">
-              <label className="text-xs text-slate-500 uppercase tracking-wide">
+              <label className="text-xs text-white/35 uppercase tracking-widest">
                 Compétences / Tags
                 {selectedTags.length > 0 && (
                   <button
@@ -272,10 +268,10 @@ export default function OffersGrid({ offers }: Props) {
                   <button
                     key={tag}
                     onClick={() => toggleTag(tag)}
-                    className={`px-2.5 py-1 rounded-full text-xs border transition-colors ${
+                    className={`px-2.5 py-1 rounded-full text-xs border transition-all ${
                       selectedTags.includes(tag)
-                        ? 'bg-[#1E3A5F] border-blue-500 text-blue-300 font-medium'
-                        : 'bg-[#1E293B] border-[#334155] text-slate-400 hover:border-slate-500 hover:text-slate-300'
+                        ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-300 font-medium'
+                        : 'bg-white/5 border-white/10 text-white/40 hover:border-white/25 hover:text-white/65'
                     }`}
                   >
                     {tag}
@@ -289,7 +285,7 @@ export default function OffersGrid({ offers }: Props) {
 
       {/* Compteur résultats */}
       <div className="max-w-7xl mx-auto px-8 pt-5 pb-1">
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-white/30">
           {filtered.length} offre{filtered.length !== 1 ? 's' : ''} {filtered.length !== offers.length ? `sur ${offers.length}` : ''}
         </p>
       </div>
@@ -297,7 +293,7 @@ export default function OffersGrid({ offers }: Props) {
       {/* Grille */}
       <div className="max-w-7xl mx-auto px-8 py-4">
         {paginated.length === 0 ? (
-          <p className="text-slate-400 text-center py-16">
+          <p className="text-white/40 text-center py-16">
             Aucune offre ne correspond à ta recherche.
           </p>
         ) : (
@@ -317,7 +313,7 @@ export default function OffersGrid({ offers }: Props) {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={safePage === 1}
-              className="w-9 h-9 rounded-lg border border-[#334155] bg-[#1E293B] text-slate-400 disabled:opacity-30 hover:border-blue-500 text-sm"
+              className="w-9 h-9 rounded-xl glass text-white/45 disabled:opacity-30 hover:border-indigo-500/40 text-sm transition-all"
             >
               ←
             </button>
@@ -325,10 +321,10 @@ export default function OffersGrid({ offers }: Props) {
               <button
                 key={n}
                 onClick={() => setPage(n)}
-                className={`w-9 h-9 rounded-lg border text-sm transition-colors ${
+                className={`w-9 h-9 rounded-xl text-sm transition-all ${
                   n === safePage
-                    ? 'bg-blue-500 border-blue-500 text-white font-semibold'
-                    : 'border-[#334155] bg-[#1E293B] text-slate-400 hover:border-blue-500'
+                    ? 'bg-indigo-500 text-white font-semibold border border-indigo-400'
+                    : 'glass text-white/45 hover:border-indigo-500/40'
                 }`}
               >
                 {n}
@@ -337,7 +333,7 @@ export default function OffersGrid({ offers }: Props) {
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={safePage === totalPages}
-              className="w-9 h-9 rounded-lg border border-[#334155] bg-[#1E293B] text-slate-400 disabled:opacity-30 hover:border-blue-500 text-sm"
+              className="w-9 h-9 rounded-xl glass text-white/45 disabled:opacity-30 hover:border-indigo-500/40 text-sm transition-all"
             >
               →
             </button>

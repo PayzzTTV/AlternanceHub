@@ -25,15 +25,15 @@ type Props = { initialApplications: Application[] }
 type ColumnDef = {
   id: ApplicationStatus | 'done'
   label: string
-  color: string
+  accent: string
 }
 
 const COLUMNS: ColumnDef[] = [
-  { id: 'interested', label: 'Intéressé', color: 'border-slate-500' },
-  { id: 'applied', label: 'Postulé', color: 'border-blue-500' },
-  { id: 'followed_up', label: 'Relancé', color: 'border-amber-500' },
-  { id: 'interview', label: 'Entretien', color: 'border-emerald-500' },
-  { id: 'done', label: 'Terminé', color: 'border-slate-600' },
+  { id: 'interested', label: 'Intéressé', accent: 'border-t-white/20' },
+  { id: 'applied', label: 'Postulé', accent: 'border-t-indigo-500' },
+  { id: 'followed_up', label: 'Relancé', accent: 'border-t-amber-500' },
+  { id: 'interview', label: 'Entretien', accent: 'border-t-emerald-500' },
+  { id: 'done', label: 'Terminé', accent: 'border-t-white/10' },
 ]
 
 function SortableCard({
@@ -81,13 +81,13 @@ function DroppableColumn({
 
   return (
     <div
-      className={`min-w-[220px] flex-1 bg-[#1E293B] border border-[#334155] rounded-xl flex flex-col border-t-[3px] ${col.color} transition-colors ${isOver && col.id !== 'done' ? 'border-blue-400 bg-[#1e2f47]' : ''}`}
+      className={`min-w-[220px] flex-1 glass rounded-2xl flex flex-col border-t-[3px] ${col.accent} transition-all ${isOver && col.id !== 'done' ? 'bg-indigo-500/10 border-indigo-500/40' : ''}`}
     >
-      <div className="px-3 py-3 border-b border-[#334155] flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-slate-300">
+      <div className="px-3 py-3 border-b border-white/8 flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-widest text-white/55">
           {col.label}
         </span>
-        <span className="text-xs bg-[#334155] text-slate-400 rounded-full px-2 py-0.5">
+        <span className="text-xs bg-white/8 text-white/40 rounded-full px-2 py-0.5">
           {totalCount}
         </span>
       </div>
@@ -95,13 +95,13 @@ function DroppableColumn({
       <div ref={setNodeRef} className="p-2 flex flex-col gap-2 flex-1 min-h-[280px]">
         {col.id === 'done' ? (
           <>
-            <p className="text-xs text-slate-500 uppercase tracking-wide mt-1">✅ Accepté</p>
+            <p className="text-xs text-white/30 uppercase tracking-wide mt-1">✅ Accepté</p>
             {acceptedItems.map((app) => (
               <div key={app.id} className="border-l-2 border-emerald-500 pl-1">
                 <ApplicationCard application={app} onDelete={onDelete} onUpdate={onUpdate} />
               </div>
             ))}
-            <p className="text-xs text-slate-500 uppercase tracking-wide mt-2">❌ Refusé</p>
+            <p className="text-xs text-white/30 uppercase tracking-wide mt-2">❌ Refusé</p>
             {rejectedItems.map((app) => (
               <div key={app.id} className="border-l-2 border-red-500 pl-1">
                 <ApplicationCard application={app} onDelete={onDelete} onUpdate={onUpdate} />
