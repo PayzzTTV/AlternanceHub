@@ -21,7 +21,10 @@ from scraper.sources.france_travail_api import (
 
 def _get_supabase_config() -> tuple[str, str]:
     supabase_url = os.getenv("SUPABASE_URL", "").strip()
-    service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+    # Remove all whitespace (including embedded \n or \r from copy-paste)
+    service_role_key = "".join(
+        os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").split()
+    )
     if not supabase_url or not service_role_key:
         raise ValueError(
             "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required"
