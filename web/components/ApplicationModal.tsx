@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { updateDetails, removeApplication } from '@/lib/applications'
 import type { Application, ApplicationStatus } from '@/types/application'
 
 type Props = {
   application: Application
   onClose: () => void
+  onDelete: (id: string) => void
+  onUpdate: (app: Application) => void
 }
 
 const STATUS_LABELS: Record<ApplicationStatus, string> = {
@@ -18,7 +19,7 @@ const STATUS_LABELS: Record<ApplicationStatus, string> = {
   rejected: 'Refusé',
 }
 
-export default function ApplicationModal({ application, onClose }: Props) {
+export default function ApplicationModal({ application, onClose, onDelete, onUpdate }: Props) {
   const [notes, setNotes] = useState(application.notes ?? '')
   const [followUpDate, setFollowUpDate] = useState(application.follow_up_date ?? '')
   const [status, setStatus] = useState<ApplicationStatus>(application.status)
@@ -27,17 +28,20 @@ export default function ApplicationModal({ application, onClose }: Props) {
 
   async function handleSave() {
     setSaving(true)
-    await updateDetails(application.id, {
-      notes: notes || undefined,
-      follow_up_date: followUpDate || undefined,
+    const updated: Application = {
+      ...application,
+      notes: notes || null,
+      follow_up_date: followUpDate || null,
       status,
-    })
+      updated_at: new Date().toISOString(),
+    }
+    onUpdate(updated)
     setSaving(false)
     onClose()
   }
 
-  async function handleDelete() {
-    await removeApplication(application.id)
+  function handleDelete() {
+    onDelete(application.id)
     onClose()
   }
 

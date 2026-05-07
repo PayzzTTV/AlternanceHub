@@ -6,6 +6,8 @@ import ApplicationModal from '@/components/ApplicationModal'
 
 type Props = {
   application: Application
+  onDelete: (id: string) => void
+  onUpdate: (app: Application) => void
 }
 
 function isUrgent(dateStr: string | null): boolean {
@@ -14,7 +16,7 @@ function isUrgent(dateStr: string | null): boolean {
   return diff >= 0 && diff <= 3 * 24 * 60 * 60 * 1000
 }
 
-export default function ApplicationCard({ application }: Props) {
+export default function ApplicationCard({ application, onDelete, onUpdate }: Props) {
   const [modalOpen, setModalOpen] = useState(false)
 
   return (
@@ -73,6 +75,8 @@ export default function ApplicationCard({ application }: Props) {
         <ApplicationModal
           application={application}
           onClose={() => setModalOpen(false)}
+          onDelete={onDelete}
+          onUpdate={onUpdate}
         />
       )}
     </>
