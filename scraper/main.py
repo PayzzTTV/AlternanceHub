@@ -1,13 +1,10 @@
 from __future__ import annotations
 
-import json
 import os
-import ssl
 import time
-from urllib.request import Request, urlopen
 from typing import Any
 
-import certifi
+import requests
 from dotenv import load_dotenv
 
 from scraper.deduplicator import offer_hash
@@ -55,7 +52,6 @@ def upsert_offers(
 ) -> None:
     if not records:
         return
-    ssl_context = ssl.create_default_context(cafile=certifi.where())
     url = f"{supabase_url}/rest/v1/offers?on_conflict=hash"
     headers = {
         "apikey": service_role_key,
@@ -63,14 +59,11 @@ def upsert_offers(
         "Content-Type": "application/json",
         "Prefer": "resolution=merge-duplicates",
     }
+    session = requests.Session()
     for i in range(0, len(records), batch_size):
         batch = records[i:i + batch_size]
-        body = json.dumps(batch).encode("utf-8")
-        req = Request(url, data=body, method="POST")
-        for key, value in headers.items():
-            req.add_header(key, value)
-        with urlopen(req, timeout=30, context=ssl_context) as resp:
-            resp.read()
+        resp = session.post(url, json=batch, headers=headers, timeout=30)
+        resp.raise_for_status()
         time.sleep(0.3)
 
 
