@@ -20,14 +20,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r scraper/requirements.txt
 
-      - name: Check secrets
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: |
-          echo "SUPABASE_URL length: ${#SUPABASE_URL}"
-          echo "SERVICE_ROLE_KEY length: ${#SUPABASE_SERVICE_ROLE_KEY}"
-
       - name: Run scraper
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
