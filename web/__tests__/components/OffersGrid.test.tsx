@@ -77,4 +77,40 @@ describe('OffersGrid', () => {
     expect(screen.getByText('Remote')).toBeInTheDocument()
     expect(screen.queryByText('Onsite')).not.toBeInTheDocument()
   })
+
+  it('filtre par localisation', () => {
+    const offers = [
+      makeOffer({ title: 'Paris job', location: 'Paris' }),
+      makeOffer({ title: 'Lyon job', location: 'Lyon' }),
+    ]
+    render(<OffersGrid offers={offers} />)
+    fireEvent.click(screen.getByRole('button', { name: /Filtres/i }))
+    fireEvent.change(screen.getByRole('combobox', { name: /Localisation/i }), {
+      target: { value: 'Paris' },
+    })
+    expect(screen.getByText('Paris job')).toBeInTheDocument()
+    expect(screen.queryByText('Lyon job')).not.toBeInTheDocument()
+  })
+
+  it('filtre par tag (intersection)', () => {
+    const offers = [
+      makeOffer({ title: 'SOC job', tags: ['SOC', 'SIEM'] }),
+      makeOffer({ title: 'Pentest job', tags: ['Pentest'] }),
+    ]
+    render(<OffersGrid offers={offers} />)
+    fireEvent.click(screen.getByRole('button', { name: /Filtres/i }))
+    fireEvent.click(screen.getByRole('button', { name: 'SOC' }))
+    expect(screen.getByText('SOC job')).toBeInTheDocument()
+    expect(screen.queryByText('Pentest job')).not.toBeInTheDocument()
+  })
+
+  it('affiche le compteur de filtres actifs sur le bouton', () => {
+    const offers = [makeOffer({ location: 'Paris' })]
+    render(<OffersGrid offers={offers} />)
+    fireEvent.click(screen.getByRole('button', { name: /Filtres/i }))
+    fireEvent.change(screen.getByRole('combobox', { name: /Localisation/i }), {
+      target: { value: 'Paris' },
+    })
+    expect(screen.getByText('1')).toBeInTheDocument()
+  })
 })

@@ -31,28 +31,75 @@ function exportCsv(offers: Offer[]) {
   URL.revokeObjectURL(url)
 }
 
+function daysAgo(days: number): Date {
+  const d = new Date()
+  d.setDate(d.getDate() - days)
+  return d
+}
+
 type Props = { offers: Offer[] }
 
 export default function OffersGrid({ offers }: Props) {
   const [query, setQuery] = useState('')
   const [teletravailOnly, setTeletravailOnly] = useState(false)
   const [duration, setDuration] = useState('')
+  const [location, setLocation] = useState('')
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [publishedAfter, setPublishedAfter] = useState('')
+  const [showAdvanced, setShowAdvanced] = useState(false)
   const [page, setPage] = useState(1)
+
+  // Options dynamiques depuis les données
+  const allLocations = useMemo(() => {
+    const locs = offers.map((o) => o.location).filter(Boolean) as string[]
+    return [...new Set(locs)].sort()
+  }, [offers])
+
+  const allDurations = useMemo(() => {
+    const durs = offers.map((o) => o.duration).filter(Boolean) as string[]
+    return [...new Set(durs)].sort((a, b) => Number(a) - Number(b))
+  }, [offers])
+
+  const allTags = useMemo(() => {
+    const tagSet = new Set<string>()
+    offers.forEach((o) => o.tags.forEach((t) => tagSet.add(t)))
+    return [...tagSet].sort()
+  }, [offers])
+
+  const activeAdvancedCount = [
+    location !== '',
+    selectedTags.length > 0,
+    publishedAfter !== '',
+  ].filter(Boolean).length
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase()
+    const cutoff = publishedAfter
+      ? publishedAfter === '7' ? daysAgo(7)
+      : publishedAfter === '30' ? daysAgo(30)
+      : publishedAfter === '90' ? daysAgo(90)
+      : null
+      : null
+
     return offers.filter((o) => {
       const matchesQuery =
         !q ||
         o.title.toLowerCase().includes(q) ||
         o.company.toLowerCase().includes(q) ||
         (o.location ?? '').toLowerCase().includes(q)
-      const matchesTeletravail =
-        !teletravailOnly || o.tags.includes('Télétravail')
+      const matchesTeletravail = !teletravailOnly || o.tags.includes('Télétravail')
       const matchesDuration = !duration || o.duration === duration
-      return matchesQuery && matchesTeletravail && matchesDuration
+      const matchesLocation = !location || o.location === location
+      const matchesTags =
+        selectedTags.length === 0 ||
+        selectedTags.every((t) => o.tags.includes(t))
+      const matchesDate =
+        !cutoff ||
+        (o.published_at != null && new Date(o.published_at) >= cutoff)
+
+      return matchesQuery && matchesTeletravail && matchesDuration && matchesLocation && matchesTags && matchesDate
     })
-  }, [offers, query, teletravailOnly, duration])
+  }, [offers, query, teletravailOnly, duration, location, selectedTags, publishedAfter])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
   const safePage = Math.min(page, totalPages)
@@ -62,12 +109,22 @@ export default function OffersGrid({ offers }: Props) {
     setQuery('')
     setTeletravailOnly(false)
     setDuration('')
+    setLocation('')
+    setSelectedTags([])
+    setPublishedAfter('')
+    setPage(1)
+  }
+
+  function toggleTag(tag: string) {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    )
     setPage(1)
   }
 
   return (
     <div>
-      {/* Search + filters */}
+      {/* Barre principale */}
       <div className="bg-[#1E293B] border-b border-[#334155] px-8 py-4 flex flex-wrap gap-3 items-center">
         <div className="flex rounded-lg overflow-hidden border-[1.5px] border-blue-500 shadow-[0_0_0_3px_rgba(59,130,246,0.15)] flex-1 min-w-[260px] max-w-lg">
           <input
@@ -103,10 +160,28 @@ export default function OffersGrid({ offers }: Props) {
           className="px-3 py-2 rounded-full text-sm bg-[#0F172A] border border-[#334155] text-slate-400 outline-none"
         >
           <option value="">Durée : toutes</option>
-          <option value="6">6 mois</option>
-          <option value="12">12 mois</option>
-          <option value="24">24 mois</option>
+          {allDurations.map((d) => (
+            <option key={d} value={d}>{d} mois</option>
+          ))}
         </select>
+
+        {/* Bouton filtres avancés */}
+        <button
+          onClick={() => setShowAdvanced((v) => !v)}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-full text-sm border transition-colors ${
+            showAdvanced || activeAdvancedCount > 0
+              ? 'bg-[#1E3A5F] border-blue-500 text-[#93C5FD]'
+              : 'bg-[#0F172A] border-[#334155] text-slate-400 hover:border-blue-500'
+          }`}
+        >
+          ⚙ Filtres
+          {activeAdvancedCount > 0 && (
+            <span className="bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center leading-none">
+              {activeAdvancedCount}
+            </span>
+          )}
+          <span className="text-xs">{showAdvanced ? '▲' : '▼'}</span>
+        </button>
 
         <button
           onClick={() => exportCsv(filtered)}
@@ -124,8 +199,94 @@ export default function OffersGrid({ offers }: Props) {
         </button>
       </div>
 
-      {/* Results */}
-      <div className="max-w-7xl mx-auto px-8 py-7">
+      {/* Panneau filtres avancés */}
+      {showAdvanced && (
+        <div className="bg-[#0F172A] border-b border-[#334155] px-8 py-5 flex flex-col gap-5">
+          {/* Localisation + Date */}
+          <div className="flex flex-wrap gap-4 items-end">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="filter-location" className="text-xs text-slate-500 uppercase tracking-wide">Localisation</label>
+              <select
+                id="filter-location"
+                value={location}
+                onChange={(e) => { setLocation(e.target.value); setPage(1) }}
+                className="px-3 py-2 rounded-lg text-sm bg-[#1E293B] border border-[#334155] text-slate-300 outline-none min-w-[180px]"
+              >
+                <option value="">Toutes les villes</option>
+                {allLocations.map((loc) => (
+                  <option key={loc} value={loc}>{loc}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label className="text-xs text-slate-500 uppercase tracking-wide">Date de publication</label>
+              <div className="flex gap-2">
+                {[
+                  { label: 'Tout', value: '' },
+                  { label: '7 derniers jours', value: '7' },
+                  { label: '30 jours', value: '30' },
+                  { label: '3 mois', value: '90' },
+                ].map(({ label, value }) => (
+                  <button
+                    key={value}
+                    onClick={() => { setPublishedAfter(value); setPage(1) }}
+                    className={`px-3 py-1.5 rounded-lg text-xs border transition-colors ${
+                      publishedAfter === value
+                        ? 'bg-[#1E3A5F] border-blue-500 text-blue-300 font-medium'
+                        : 'bg-[#1E293B] border-[#334155] text-slate-400 hover:border-slate-500'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Tags */}
+          {allTags.length > 0 && (
+            <div className="flex flex-col gap-2">
+              <label className="text-xs text-slate-500 uppercase tracking-wide">
+                Compétences / Tags
+                {selectedTags.length > 0 && (
+                  <button
+                    onClick={() => { setSelectedTags([]); setPage(1) }}
+                    className="ml-2 text-red-400 hover:text-red-300 normal-case"
+                  >
+                    (effacer)
+                  </button>
+                )}
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {allTags.map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={`px-2.5 py-1 rounded-full text-xs border transition-colors ${
+                      selectedTags.includes(tag)
+                        ? 'bg-[#1E3A5F] border-blue-500 text-blue-300 font-medium'
+                        : 'bg-[#1E293B] border-[#334155] text-slate-400 hover:border-slate-500 hover:text-slate-300'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Compteur résultats */}
+      <div className="max-w-7xl mx-auto px-8 pt-5 pb-1">
+        <p className="text-xs text-slate-500">
+          {filtered.length} offre{filtered.length !== 1 ? 's' : ''} {filtered.length !== offers.length ? `sur ${offers.length}` : ''}
+        </p>
+      </div>
+
+      {/* Grille */}
+      <div className="max-w-7xl mx-auto px-8 py-4">
         {paginated.length === 0 ? (
           <p className="text-slate-400 text-center py-16">
             Aucune offre ne correspond à ta recherche.
