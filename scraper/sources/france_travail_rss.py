@@ -14,6 +14,21 @@ import feedparser
 SOURCE_NAME = "france_travail"
 
 
+def _extract_city(address: str) -> str:
+    """Extract city from a French postal address.
+
+    Example: '105 RUE SAINT-CHARLES 75015 PARIS' → 'Paris'
+    """
+    if not address:
+        return ""
+    parts = address.strip().split()
+    # City is typically after the postal code (5 digits)
+    for i, part in enumerate(parts):
+        if part.isdigit() and len(part) == 5 and i + 1 < len(parts):
+            return " ".join(parts[i + 1:]).title()
+    return address.title()
+
+
 def _map_france_travail_json_item(item: dict[str, Any]) -> dict[str, Any]:
     workplace = item.get("workplace", {})
     offer = item.get("offer", {})
@@ -23,14 +38,19 @@ def _map_france_travail_json_item(item: dict[str, Any]) -> dict[str, Any]:
 
     location = ""
     if isinstance(workplace, dict):
-        location = (
+        raw_address = (
             workplace.get("location", {}).get("address", "")
             if isinstance(workplace.get("location"), dict)
             else ""
         )
+        location = _extract_city(raw_address)
 
     duration = contract.get("duration")
     duration_text = str(duration) if duration is not None else ""
+
+    remote = contract.get("remote")
+    desired_skills: list[str] = offer.get("desired_skills") or []
+    description: str = offer.get("description") or ""
 
     return {
         "title": offer.get("title", ""),
@@ -39,7 +59,9 @@ def _map_france_travail_json_item(item: dict[str, Any]) -> dict[str, Any]:
         "source_url": apply.get("url", ""),
         "published_at": publication.get("creation", ""),
         "duration": duration_text,
-        "tags": ["cybersecurity", "alternance"],
+        "description": description,
+        "desired_skills": desired_skills,
+        "remote": remote,
     }
 
 

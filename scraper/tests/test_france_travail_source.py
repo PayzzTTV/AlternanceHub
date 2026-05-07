@@ -23,7 +23,7 @@ def test_map_france_travail_json_item() -> None:
     mapped = _map_france_travail_json_item(payload)
     assert mapped["title"] == "Developpeur web"
     assert mapped["company"].startswith("DIRECTION INTERMINISTERIELLE")
-    assert mapped["location"] == "20 AVENUE DE SEGUR 75007 PARIS"
+    assert mapped["location"] == "Paris"
     assert mapped["source_url"].startswith(
         "https://labonnealternance.apprentissage.beta.gouv.fr"
     )
