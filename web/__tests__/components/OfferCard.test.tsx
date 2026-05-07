@@ -2,6 +2,10 @@ import { render, screen } from '@testing-library/react'
 import OfferCard from '@/components/OfferCard'
 import type { Offer } from '@/types/offer'
 
+jest.mock('@/lib/applications', () => ({
+  addApplication: jest.fn(),
+}))
+
 const mockOffer: Offer = {
   id: '1',
   hash: 'abc123',
@@ -41,5 +45,10 @@ describe('OfferCard', () => {
     render(<OfferCard offer={mockOffer} />)
     const link = screen.getByRole('link', { name: /voir l/i })
     expect(link).toHaveAttribute('href', 'https://example.com/offre/1')
+  })
+
+  it('affiche le bouton Suivre', () => {
+    render(<OfferCard offer={mockOffer} />)
+    expect(screen.getByRole('button', { name: /⭐ Suivre/i })).toBeInTheDocument()
   })
 })

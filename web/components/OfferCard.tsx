@@ -1,4 +1,5 @@
 import type { Offer } from '@/types/offer'
+import FollowButton from '@/components/FollowButton'
 
 type Props = { offer: Offer }
 
@@ -63,14 +64,24 @@ export default function OfferCard({ offer }: Props) {
             ? `Publié le ${formatDate(offer.published_at)}`
             : `Indexé le ${formatDate(offer.scraped_at)}`}
         </span>
-        <a
-          href={offer.source_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition-colors"
-        >
-          Voir l&apos;offre →
-        </a>
+        <div className="flex items-center gap-2">
+          <FollowButton
+            offer={{
+              id: offer.id,
+              title: offer.title,
+              company: offer.company,
+              source_url: offer.source_url,
+            }}
+          />
+          <a
+            href={offer.source_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition-colors"
+          >
+            Voir l&apos;offre →
+          </a>
+        </div>
       </div>
     </div>
   )
