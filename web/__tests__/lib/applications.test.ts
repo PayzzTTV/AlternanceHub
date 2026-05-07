@@ -68,7 +68,10 @@ describe('getApplications', () => {
 function buildInsertMock(result = { error: null }) {
   const insert = jest.fn().mockResolvedValue(result)
   const from = jest.fn().mockReturnValue({ insert })
-  return { from, insert }
+  const auth = {
+    getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'user-1' } } }),
+  }
+  return { from, insert, auth }
 }
 
 describe('addApplication', () => {
@@ -86,6 +89,22 @@ describe('addApplication', () => {
     expect(mocks.insert).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'interested', title: 'Alternant SOC' })
     )
+  })
+
+  it('does nothing when user is not authenticated', async () => {
+    const insert = jest.fn()
+    const from = jest.fn().mockReturnValue({ insert })
+    const auth = {
+      getUser: jest.fn().mockResolvedValue({ data: { user: null } }),
+    }
+    mockedClient.mockResolvedValue({ from, auth } as never)
+    await addApplication({
+      id: 'offer-1',
+      title: 'Alternant SOC',
+      company: 'Thales',
+      source_url: null,
+    })
+    expect(insert).not.toHaveBeenCalled()
   })
 })
 
