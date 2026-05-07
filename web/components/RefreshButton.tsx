@@ -19,7 +19,7 @@ export default function RefreshButton() {
     <button
       onClick={handleRefresh}
       disabled={loading}
-      className="flex items-center gap-1.5 text-slate-400 hover:text-slate-200 disabled:opacity-50 transition-colors text-sm"
+      className="flex items-center gap-1.5 text-white/40 hover:text-white/75 disabled:opacity-50 transition-colors text-sm"
       aria-label="Actualiser les offres"
     >
       <span

@@ -8,18 +8,6 @@ import { getMatchInsights } from '@/components/CVUploader'
 
 type Props = { offer: Offer; matchScore?: number }
 
-const TAG_STYLES: Record<string, string> = {
-  'cybersécurité': 'bg-[#1E3A5F] text-[#93C5FD]',
-  'alternance': 'bg-slate-700 text-slate-300 border border-slate-600',
-  'Télétravail': 'bg-[#052e16] text-[#4ADE80]',
-  'Apprentissage': 'bg-[#2D2000] text-[#FCD34D]',
-  'Professionnalisation': 'bg-[#2D2000] text-[#FCD34D]',
-}
-
-function tagStyle(tag: string): string {
-  return TAG_STYLES[tag] ?? 'bg-slate-700 text-slate-300'
-}
-
 function formatDate(iso: string | null): string {
   if (!iso) return ''
   return new Date(iso).toLocaleDateString('fr-FR', {
@@ -32,7 +20,7 @@ function formatDate(iso: string | null): string {
 function matchColor(score: number): string {
   if (score >= 70) return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
   if (score >= 40) return 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
-  return 'bg-slate-700/50 text-slate-400 border border-slate-600'
+  return 'bg-white/5 text-white/40 border border-white/10'
 }
 
 export default function OfferCard({ offer, matchScore }: Props) {
@@ -41,27 +29,27 @@ export default function OfferCard({ offer, matchScore }: Props) {
 
   return (
     <>
-    <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-5 shadow flex flex-col gap-3 hover:border-blue-500 transition-colors">
+    <div className="glass rounded-2xl p-5 flex flex-col gap-3 hover:border-indigo-500/40 hover:bg-white/[0.07] transition-all duration-200 cursor-default">
       <div className="flex justify-between items-start gap-2">
         <div className="cursor-pointer" onClick={() => setModalOpen(true)}>
-          <h3 className="text-base font-semibold text-slate-100 leading-snug hover:text-blue-400 transition-colors">
+          <h3 className="text-base font-semibold text-white/90 leading-snug hover:text-indigo-300 transition-colors">
             {offer.title}
           </h3>
-          <p className="text-sm text-slate-400 mt-0.5">{offer.company}</p>
+          <p className="text-sm text-white/45 mt-0.5">{offer.company}</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {matchScore !== undefined && (
-            <span className={`text-xs font-bold px-2 py-1 rounded ${matchColor(matchScore)}`}>
+            <span className={`text-xs font-bold px-2 py-1 rounded-lg ${matchColor(matchScore)}`}>
               {matchScore}%
             </span>
           )}
-          <span className="bg-[#1E3A5F] text-[#93C5FD] text-xs font-medium px-2 py-1 rounded">
+          <span className="bg-indigo-500/15 text-indigo-300 border border-indigo-500/25 text-xs font-medium px-2 py-1 rounded-lg">
             {offer.source === 'france_travail' ? 'LBA' : offer.source}
           </span>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-3 text-sm text-slate-400">
+      <div className="flex flex-wrap gap-3 text-sm text-white/45">
         {offer.location && <span>📍 {offer.location}</span>}
         {offer.duration && <span>⏱ {offer.duration} mois</span>}
         <span>💼 {offer.contract_type}</span>
@@ -72,7 +60,7 @@ export default function OfferCard({ offer, matchScore }: Props) {
           {offer.tags.map((tag) => (
             <span
               key={tag}
-              className={`text-xs font-medium px-2 py-0.5 rounded ${tagStyle(tag)}`}
+              className="text-xs font-medium px-2 py-0.5 rounded-lg bg-white/5 text-white/55 border border-white/8"
             >
               {tag}
             </span>
@@ -80,8 +68,8 @@ export default function OfferCard({ offer, matchScore }: Props) {
         </div>
       )}
 
-      <div className="flex items-center justify-between mt-1">
-        <span className="text-xs text-slate-500">
+      <div className="flex items-center justify-between mt-auto pt-1">
+        <span className="text-xs text-white/30">
           {offer.published_at
             ? `Publié le ${formatDate(offer.published_at)}`
             : `Indexé le ${formatDate(offer.scraped_at)}`}
@@ -97,7 +85,7 @@ export default function OfferCard({ offer, matchScore }: Props) {
           />
           <button
             onClick={() => setModalOpen(true)}
-            className="bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-3 py-1.5 rounded-md transition-colors"
+            className="bg-indigo-500 hover:bg-indigo-400 text-white text-sm font-medium px-3 py-1.5 rounded-xl transition-colors"
           >
             Voir l&apos;offre →
           </button>

@@ -22,7 +22,7 @@ export default function FollowButton({ offer }: Props) {
 
   if (followed) {
     return (
-      <span className="bg-emerald-600 text-white text-sm font-medium px-3 py-1.5 rounded-md">
+      <span className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 text-sm font-medium px-3 py-1.5 rounded-xl">
         ✓ Suivi
       </span>
     )
@@ -31,7 +31,7 @@ export default function FollowButton({ offer }: Props) {
   return (
     <button
       onClick={handleClick}
-      className="bg-[#1E293B] border border-[#334155] hover:border-blue-500 text-slate-300 hover:text-blue-400 text-sm font-medium px-3 py-1.5 rounded-md transition-colors"
+      className="glass border-white/10 hover:border-indigo-500/40 hover:text-indigo-300 text-white/50 text-sm font-medium px-3 py-1.5 rounded-xl transition-all"
     >
       ⭐ Suivre
     </button>

@@ -16,14 +16,14 @@ export default async function HomePage() {
   return (
     <>
       {/* Navbar */}
-      <nav className="bg-[#1E293B] border-b border-[#334155] px-8 h-14 flex items-center justify-between sticky top-0 z-10">
-        <span className="text-lg font-bold text-slate-100">
-          Alternance<span className="text-blue-500">Hub</span>
+      <nav className="glass-strong border-b border-white/8 px-8 h-14 flex items-center justify-between sticky top-0 z-20">
+        <span className="text-lg font-bold text-white/90 tracking-tight">
+          Alternance<span className="text-indigo-400">Hub</span>
         </span>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-5">
           <Link
             href="/suivi"
-            className="text-sm text-slate-400 hover:text-slate-200 transition-colors"
+            className="text-sm text-white/50 hover:text-white/90 transition-colors"
           >
             Suivi
           </Link>
@@ -32,27 +32,27 @@ export default async function HomePage() {
           ) : (
             <Link
               href="/login"
-              className="text-sm text-slate-400 hover:text-slate-200 border border-[#334155] hover:border-slate-500 rounded-lg px-3 py-1.5 transition-colors"
+              className="text-sm text-white/60 hover:text-white/90 border border-white/10 hover:border-white/25 rounded-xl px-4 py-1.5 transition-all"
             >
               Connexion
             </Link>
           )}
-          <span className="bg-blue-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
+          <span className="bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-xs font-semibold px-3 py-1 rounded-full">
             {offers.length} offres
           </span>
         </div>
       </nav>
 
       {/* Hero */}
-      <div
-        className="border-b border-[#334155] px-8 py-12 text-center"
-        style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E3A5F 100%)' }}
-      >
-        <h1 className="text-4xl font-bold text-slate-100 mb-3 leading-tight">
+      <div className="px-8 py-16 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-indigo-500/5 to-transparent pointer-events-none" />
+        <h1 className="relative text-5xl font-bold text-white/90 mb-4 leading-tight tracking-tight">
           Trouve ton alternance en{' '}
-          <span className="text-blue-500">cybersécurité</span>
+          <span className="bg-gradient-to-r from-indigo-400 to-sky-400 bg-clip-text text-transparent">
+            cybersécurité
+          </span>
         </h1>
-        <p className="text-slate-400 text-base">
+        <p className="relative text-white/45 text-base max-w-md mx-auto">
           Toutes les offres agrégées depuis France Travail &amp; La Bonne Alternance
         </p>
       </div>
@@ -64,11 +64,11 @@ export default async function HomePage() {
       <OffersGrid offers={offers} />
 
       {/* Footer */}
-      <footer className="border-t border-[#334155] px-8 py-5 text-center text-sm text-slate-500 mt-8">
+      <footer className="border-t border-white/8 px-8 py-5 text-center text-sm text-white/30 mt-8">
         AlternanceHub · Open source · Données issues de{' '}
         <a
           href="https://labonnealternance.apprentissage.beta.gouv.fr"
-          className="text-blue-400 hover:underline"
+          className="text-indigo-400 hover:text-indigo-300 transition-colors"
           target="_blank"
           rel="noopener noreferrer"
         >

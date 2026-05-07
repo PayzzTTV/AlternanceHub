@@ -1,28 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300..800;1,14..32,300..800&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --color-bg: #0F172A;
-  --color-card: #1E293B;
-  --color-border-dark: #334155;
-  --color-primary: #3B82F6;
-  --color-primary-dark: #2563EB;
-  --color-badge-bg: #1E3A5F;
-  --color-badge-text: #93C5FD;
-  --color-success-bg: #052e16;
-  --color-success-text: #4ADE80;
-  --color-yellow-bg: #2D2000;
-  --color-yellow-text: #FCD34D;
-  --font-family-sans: 'Inter', sans-serif;
-}
-
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
-  background-color: #0F172A;
-  color: #F1F5F9;
-  font-family: 'Inter', sans-serif;
+  background-color: #080810;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(99,102,241,0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(14,165,233,0.14) 0%, transparent 55%);
+  background-attachment: fixed;
+  color: rgba(255,255,255,0.9);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
+
+/* Glass utility */
+.glass {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.glass-strong {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }

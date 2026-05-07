@@ -22,40 +22,40 @@ export default async function SuiviPage() {
 
   return (
     <>
-      <nav className="bg-[#1E293B] border-b border-[#334155] px-8 h-14 flex items-center justify-between sticky top-0 z-10">
-        <Link href="/" className="text-lg font-bold text-slate-100">
-          Alternance<span className="text-blue-500">Hub</span>
+      <nav className="glass-strong border-b border-white/8 px-8 h-14 flex items-center justify-between sticky top-0 z-20">
+        <Link href="/" className="text-lg font-bold text-white/90 tracking-tight">
+          Alternance<span className="text-indigo-400">Hub</span>
         </Link>
-        <div className="flex items-center gap-6 text-sm">
-          <Link href="/" className="text-slate-400 hover:text-slate-200 transition-colors">
+        <div className="flex items-center gap-5 text-sm">
+          <Link href="/" className="text-white/50 hover:text-white/90 transition-colors">
             Offres
           </Link>
-          <Link href="/suivi" className="text-blue-500 font-semibold">
+          <Link href="/suivi" className="text-indigo-400 font-semibold">
             Suivi
           </Link>
           {user && <NavUser email={user.email ?? ''} />}
         </div>
       </nav>
 
-      <div className="px-8 py-6">
-        <h1 className="text-2xl font-bold text-slate-100 mb-1">Tableau de suivi</h1>
-        <p className="text-sm text-slate-400 mb-5">
+      <div className="px-8 py-8">
+        <h1 className="text-3xl font-bold text-white/90 mb-1 tracking-tight">Tableau de suivi</h1>
+        <p className="text-sm text-white/40 mb-6">
           Glisse les cartes entre colonnes pour changer leur statut
         </p>
 
         <div className="flex gap-3 mb-6">
-          <div className="bg-[#1E293B] border border-[#334155] rounded-lg px-4 py-2.5">
-            <span className="text-xl font-bold text-slate-100">{total}</span>
-            <span className="text-xs text-slate-400 ml-2">Total</span>
+          <div className="glass rounded-2xl px-5 py-3">
+            <span className="text-2xl font-bold text-white/90">{total}</span>
+            <span className="text-xs text-white/40 ml-2">Total</span>
           </div>
-          <div className="bg-[#1E293B] border border-[#334155] rounded-lg px-4 py-2.5">
-            <span className="text-xl font-bold text-emerald-400">{interviews}</span>
-            <span className="text-xs text-slate-400 ml-2">Entretiens</span>
+          <div className="glass rounded-2xl px-5 py-3">
+            <span className="text-2xl font-bold text-emerald-400">{interviews}</span>
+            <span className="text-xs text-white/40 ml-2">Entretiens</span>
           </div>
           {urgent > 0 && (
-            <div className="bg-[#1E293B] border border-[#334155] rounded-lg px-4 py-2.5">
-              <span className="text-xl font-bold text-amber-400">{urgent}</span>
-              <span className="text-xs text-slate-400 ml-2">Relances urgentes</span>
+            <div className="glass rounded-2xl px-5 py-3">
+              <span className="text-2xl font-bold text-amber-400">{urgent}</span>
+              <span className="text-xs text-white/40 ml-2">Relances urgentes</span>
             </div>
           )}
         </div>

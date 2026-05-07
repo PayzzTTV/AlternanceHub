@@ -46,9 +46,7 @@ export default function CalendarPicker({ value, onChange }: Props) {
     })
   }
 
-  // Jours du mois courant
   const firstDay = new Date(cursor.year, cursor.month, 1)
-  // lundi = 0
   const startOffset = (firstDay.getDay() + 6) % 7
   const daysInMonth = new Date(cursor.year, cursor.month + 1, 0).getDate()
 
@@ -56,7 +54,6 @@ export default function CalendarPicker({ value, onChange }: Props) {
     ...Array(startOffset).fill(null),
     ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
   ]
-  // Compléter jusqu'à multiple de 7
   while (cells.length % 7 !== 0) cells.push(null)
 
   const todayYMD = toYMD(today)
@@ -67,26 +64,22 @@ export default function CalendarPicker({ value, onChange }: Props) {
     onChange(toYMD(d))
   }
 
-  function clearDate() {
-    onChange('')
-  }
-
   return (
-    <div className="bg-[#0F172A] border border-[#334155] rounded-xl p-4 select-none">
+    <div className="bg-white/[0.04] border border-white/8 rounded-2xl p-4 select-none">
       {/* Header navigation */}
       <div className="flex items-center justify-between mb-4">
         <button
           onClick={prevMonth}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-100 hover:bg-[#1E293B] transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded-xl text-white/40 hover:text-white/80 hover:bg-white/8 transition-all"
         >
           ←
         </button>
-        <span className="text-sm font-semibold text-slate-100">
+        <span className="text-sm font-semibold text-white/80">
           {MONTHS[cursor.month]} {cursor.year}
         </span>
         <button
           onClick={nextMonth}
-          className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-400 hover:text-slate-100 hover:bg-[#1E293B] transition-colors"
+          className="w-8 h-8 flex items-center justify-center rounded-xl text-white/40 hover:text-white/80 hover:bg-white/8 transition-all"
         >
           →
         </button>
@@ -95,7 +88,7 @@ export default function CalendarPicker({ value, onChange }: Props) {
       {/* Jours de la semaine */}
       <div className="grid grid-cols-7 mb-1">
         {DAYS.map((d) => (
-          <div key={d} className="text-center text-xs text-slate-500 font-medium py-1">
+          <div key={d} className="text-center text-xs text-white/30 font-medium py-1">
             {d}
           </div>
         ))}
@@ -116,14 +109,14 @@ export default function CalendarPicker({ value, onChange }: Props) {
               key={i}
               onClick={() => handleDay(day)}
               className={`
-                w-8 h-8 mx-auto flex items-center justify-center rounded-lg text-sm transition-colors
+                w-8 h-8 mx-auto flex items-center justify-center rounded-xl text-sm transition-all
                 ${isSelected
-                  ? 'bg-blue-500 text-white font-semibold'
+                  ? 'bg-indigo-500 text-white font-semibold'
                   : isToday
-                  ? 'border border-blue-500 text-blue-400'
+                  ? 'border border-indigo-500/60 text-indigo-400'
                   : isPast
-                  ? 'text-slate-600 hover:bg-[#1E293B] hover:text-slate-400'
-                  : 'text-slate-300 hover:bg-[#1E293B]'
+                  ? 'text-white/20 hover:bg-white/5 hover:text-white/45'
+                  : 'text-white/65 hover:bg-white/8'
                 }
               `}
             >
@@ -134,10 +127,10 @@ export default function CalendarPicker({ value, onChange }: Props) {
       </div>
 
       {/* Raccourcis + effacer */}
-      <div className="flex gap-2 mt-4 pt-3 border-t border-[#334155]">
+      <div className="flex gap-2 mt-4 pt-3 border-t border-white/8">
         <button
           onClick={() => onChange(todayYMD)}
-          className="flex-1 text-xs text-slate-400 hover:text-slate-200 border border-[#334155] rounded-md py-1.5 transition-colors"
+          className="flex-1 text-xs text-white/40 hover:text-white/75 border border-white/10 hover:border-white/20 rounded-xl py-1.5 transition-all"
         >
           Aujourd&apos;hui
         </button>
@@ -147,14 +140,14 @@ export default function CalendarPicker({ value, onChange }: Props) {
             d.setDate(d.getDate() + 7)
             onChange(toYMD(d))
           }}
-          className="flex-1 text-xs text-slate-400 hover:text-slate-200 border border-[#334155] rounded-md py-1.5 transition-colors"
+          className="flex-1 text-xs text-white/40 hover:text-white/75 border border-white/10 hover:border-white/20 rounded-xl py-1.5 transition-all"
         >
           +7 jours
         </button>
         {value && (
           <button
-            onClick={clearDate}
-            className="text-xs text-red-400 hover:text-red-300 border border-[#334155] rounded-md px-2 py-1.5 transition-colors"
+            onClick={() => onChange('')}
+            className="text-xs text-red-400 hover:text-red-300 border border-white/10 rounded-xl px-2 py-1.5 transition-colors"
           >
             Effacer
           </button>
