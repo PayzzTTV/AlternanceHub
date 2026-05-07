@@ -17,9 +17,9 @@
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.3",
     "next": "15.5.16",
-    "pdf-parse": "^2.4.5",
     "react": "^19.2.6",
-    "react-dom": "^19.2.6"
+    "react-dom": "^19.2.6",
+    "unpdf": "^1.6.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -29,7 +29,6 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/jest": "^30.0.0",
     "@types/node": "^25",
-    "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
