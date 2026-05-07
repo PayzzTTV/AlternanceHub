@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+import json
 import os
+import ssl
 import time
+from urllib.request import Request, urlopen
 from typing import Any
 
+import certifi
 from dotenv import load_dotenv
-from supabase import Client, create_client
 
 from scraper.deduplicator import offer_hash
 from scraper.normalizer import normalize_offer, utc_now_iso
@@ -19,14 +22,14 @@ from scraper.sources.france_travail_api import (
 )
 
 
-def get_supabase_client() -> Client:
+def _get_supabase_config() -> tuple[str, str]:
     supabase_url = os.getenv("SUPABASE_URL", "").strip()
     service_role_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
     if not supabase_url or not service_role_key:
         raise ValueError(
             "SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required"
         )
-    return create_client(supabase_url, service_role_key)
+    return supabase_url, service_role_key
 
 
 def build_records(
@@ -45,20 +48,36 @@ def build_records(
 
 
 def upsert_offers(
-    client: Client, records: list[dict[str, Any]], batch_size: int = 25
+    supabase_url: str,
+    service_role_key: str,
+    records: list[dict[str, Any]],
+    batch_size: int = 25,
 ) -> None:
     if not records:
         return
+    ssl_context = ssl.create_default_context(cafile=certifi.where())
+    url = f"{supabase_url}/rest/v1/offers?on_conflict=hash"
+    headers = {
+        "apikey": service_role_key,
+        "Authorization": f"Bearer {service_role_key}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates",
+    }
     for i in range(0, len(records), batch_size):
         batch = records[i:i + batch_size]
-        client.table("offers").upsert(batch, on_conflict="hash").execute()
-        time.sleep(0.5)
+        body = json.dumps(batch).encode("utf-8")
+        req = Request(url, data=body, method="POST")
+        for key, value in headers.items():
+            req.add_header(key, value)
+        with urlopen(req, timeout=30, context=ssl_context) as resp:
+            resp.read()
+        time.sleep(0.3)
 
 
 def main() -> None:
     load_dotenv(".env.local")
     load_dotenv()
-    client = get_supabase_client()
+    supabase_url, service_role_key = _get_supabase_config()
 
     sources = [
         (SOURCE_NAME, fetch_france_travail_offers),
@@ -72,7 +91,7 @@ def main() -> None:
             print(f"No offers from {source_name}, skipping")
             continue
         records = build_records(raw_offers, source_name)
-        upsert_offers(client, records)
+        upsert_offers(supabase_url, service_role_key, records)
         print(f"Scraped {len(records)} offers from {source_name}")
         total += len(records)
 
