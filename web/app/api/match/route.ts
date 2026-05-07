@@ -3,28 +3,12 @@ import { createSupabaseServerClient } from '@/lib/supabase'
 import { matchCV } from '@/lib/tfidf'
 
 export async function POST(req: NextRequest) {
-  const formData = await req.formData()
-  const file = formData.get('cv') as File | null
-  if (!file) {
-    return NextResponse.json({ error: 'No CV file provided' }, { status: 400 })
+  const { cvText } = await req.json() as { cvText?: string }
+
+  if (!cvText?.trim()) {
+    return NextResponse.json({ error: 'CV text is empty' }, { status: 400 })
   }
 
-  // Extract text from PDF or plain text
-  let cvText = ''
-  if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-    const { extractText } = await import('unpdf')
-    const buffer = await file.arrayBuffer()
-    const { text } = await extractText(new Uint8Array(buffer), { mergePages: true })
-    cvText = typeof text === 'string' ? text : (text as string[]).join('\n')
-  } else {
-    cvText = await file.text()
-  }
-
-  if (!cvText.trim()) {
-    return NextResponse.json({ error: 'CV is empty or unreadable' }, { status: 422 })
-  }
-
-  // Fetch active offers
   const supabase = await createSupabaseServerClient()
   const { data: offers, error } = await supabase
     .from('offers')

@@ -13,6 +13,21 @@ export function getMatchScores(): Record<string, number> {
   }
 }
 
+async function extractPdfText(file: File): Promise<string> {
+  const arrayBuffer = await file.arrayBuffer()
+  const pdfjs = await import('pdfjs-dist')
+  pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`
+
+  const pdf = await pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) }).promise
+  const pages: string[] = []
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i)
+    const content = await page.getTextContent()
+    pages.push(content.items.map((item) => ('str' in item ? item.str : '')).join(' '))
+  }
+  return pages.join('\n')
+}
+
 export default function CVUploader() {
   const inputRef = useRef<HTMLInputElement>(null)
   const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
@@ -22,16 +37,25 @@ export default function CVUploader() {
     setFileName(file.name)
     setState('loading')
 
-    const formData = new FormData()
-    formData.append('cv', file)
-
     try {
-      const res = await fetch('/api/match', { method: 'POST', body: formData })
-      if (!res.ok) throw new Error()
+      let cvText: string
+      if (file.name.endsWith('.pdf')) {
+        cvText = await extractPdfText(file)
+      } else {
+        cvText = await file.text()
+      }
+
+      if (!cvText.trim()) throw new Error('empty')
+
+      const res = await fetch('/api/match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cvText }),
+      })
+      if (!res.ok) throw new Error('api')
       const { scores } = await res.json()
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(scores))
       setState('done')
-      // Reload to show badges without full page nav
       window.dispatchEvent(new CustomEvent('match-scores-updated'))
     } catch {
       setState('error')
@@ -93,7 +117,7 @@ export default function CVUploader() {
             <path className="opacity-75" fill="currentColor"
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          Analyse en cours…
+          Extraction du CV en cours…
         </div>
       )}
 
@@ -113,7 +137,7 @@ export default function CVUploader() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          Erreur — vérifie le format du fichier
+          Erreur lors de l&apos;analyse
           <button onClick={() => setState('idle')} className="underline text-slate-400 hover:text-slate-200">
             Réessayer
           </button>
