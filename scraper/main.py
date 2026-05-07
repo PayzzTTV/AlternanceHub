@@ -28,11 +28,13 @@ def get_supabase_client() -> Client:
     return create_client(supabase_url, service_role_key)
 
 
-def build_records(raw_offers: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def build_records(
+    raw_offers: list[dict[str, Any]], source_name: str
+) -> list[dict[str, Any]]:
     deduped_records: dict[str, dict[str, Any]] = {}
     scraped_at = utc_now_iso()
     for raw_offer in raw_offers:
-        normalized = normalize_offer(raw_offer, source_name=SOURCE_NAME)
+        normalized = normalize_offer(raw_offer, source_name=source_name)
         record = normalized.to_record()
         record_hash = offer_hash(normalized.title, normalized.company)
         record["hash"] = record_hash
@@ -63,7 +65,7 @@ def main() -> None:
         if not raw_offers:
             print(f"No offers from {source_name}, skipping")
             continue
-        records = build_records(raw_offers)
+        records = build_records(raw_offers, source_name)
         upsert_offers(client, records)
         print(f"Scraped {len(records)} offers from {source_name}")
         total += len(records)
