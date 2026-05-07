@@ -28,6 +28,8 @@ jobs:
           FRANCE_TRAVAIL_API_KEY: ${{ secrets.FRANCE_TRAVAIL_API_KEY }}
           FRANCE_TRAVAIL_API_KEY_HEADER: ${{ secrets.FRANCE_TRAVAIL_API_KEY_HEADER }}
           FRANCE_TRAVAIL_BEARER_TOKEN: ${{ secrets.FRANCE_TRAVAIL_BEARER_TOKEN }}
+          FT_CLIENT_ID: ${{ secrets.FT_CLIENT_ID }}
+          FT_CLIENT_SECRET: ${{ secrets.FT_CLIENT_SECRET }}
         run: python -m scraper.main
 
       - name: Notify on failure
