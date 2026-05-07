@@ -91,7 +91,8 @@ def _extract_tags(raw: dict[str, Any]) -> list[str]:
     # Build a single searchable text from title + description + skills
     title = str(raw.get("title") or "").lower()
     description = str(raw.get("description") or "").lower()
-    skills = " ".join(str(s) for s in (raw.get("desired_skills") or [])).lower()
+    raw_skills = raw.get("desired_skills") or []
+    skills = " ".join(str(s) for s in raw_skills).lower()
     haystack = f" {title} {description} {skills} "
 
     found: list[str] = []

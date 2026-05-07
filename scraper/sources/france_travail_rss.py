@@ -15,7 +15,10 @@ SOURCE_NAME = "france_travail"
 
 
 def _extract_city(address: str) -> str:
-    """Extract city name from a French postal address like '105 RUE SAINT-CHARLES 75015 PARIS'."""
+    """Extract city from a French postal address.
+
+    Example: '105 RUE SAINT-CHARLES 75015 PARIS' → 'Paris'
+    """
     if not address:
         return ""
     parts = address.strip().split()
