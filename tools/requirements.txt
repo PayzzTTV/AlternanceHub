@@ -1,0 +1,4 @@
+pdfminer.six>=20221105
+scikit-learn>=1.4.0
+python-dotenv>=1.2.2
+requests>=2.31.0
