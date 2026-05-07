@@ -6,6 +6,31 @@ import OfferCard from '@/components/OfferCard'
 
 const PAGE_SIZE = 12
 
+function exportCsv(offers: Offer[]) {
+  const headers = ['Titre', 'Entreprise', 'Localisation', 'Durée', 'Contrat', 'Tags', 'Source', 'URL', 'Publié le']
+  const rows = offers.map((o) => [
+    o.title,
+    o.company,
+    o.location ?? '',
+    o.duration ? `${o.duration} mois` : '',
+    o.contract_type,
+    o.tags.join(' | '),
+    o.source,
+    o.source_url,
+    o.published_at ? new Date(o.published_at).toLocaleDateString('fr-FR') : '',
+  ])
+  const csv = [headers, ...rows]
+    .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+    .join('\n')
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `alternances-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 type Props = { offers: Offer[] }
 
 export default function OffersGrid({ offers }: Props) {
@@ -82,6 +107,14 @@ export default function OffersGrid({ offers }: Props) {
           <option value="12">12 mois</option>
           <option value="24">24 mois</option>
         </select>
+
+        <button
+          onClick={() => exportCsv(filtered)}
+          className="text-sm text-slate-400 border border-[#334155] hover:border-blue-500 hover:text-blue-400 px-3 py-2 rounded-full transition-colors"
+          title="Exporter les offres filtrées en CSV"
+        >
+          ⬇ CSV
+        </button>
 
         <button
           onClick={resetFilters}
