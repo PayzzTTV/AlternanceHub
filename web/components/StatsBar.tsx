@@ -1,3 +1,5 @@
+import RefreshButton from '@/components/RefreshButton'
+
 type Props = {
   count: number
   scrapedAt: string | null
@@ -20,6 +22,8 @@ export default function StatsBar({ count, scrapedAt }: Props) {
       <span className="text-slate-400">Mis à jour {timeAgo(scrapedAt)}</span>
       <span className="text-[#334155]">·</span>
       <span className="text-slate-400">Source : La Bonne Alternance</span>
+      <span className="text-[#334155]">·</span>
+      <RefreshButton />
     </div>
   )
 }
