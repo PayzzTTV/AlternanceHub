@@ -59,9 +59,9 @@ describe('ApplicationCard', () => {
     expect(dateEl).toHaveClass('text-slate-500')
   })
 
-  it('ouvre la modale au clic sur ✏️', async () => {
+  it('ouvre le drawer au clic sur la carte', async () => {
     render(<ApplicationCard application={base} onDelete={onDelete} onUpdate={onUpdate} />)
-    await userEvent.click(screen.getByRole('button', { name: /✏️/i }))
+    await userEvent.click(screen.getByText('Alternant SOC'))
     expect(screen.getByTestId('modal')).toBeInTheDocument()
   })
 })
