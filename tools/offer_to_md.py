@@ -52,13 +52,22 @@ def fetch_offers(limit: int = 500) -> list[dict]:
 
 
 def offer_to_text(offer: dict) -> str:
-    """Convert an offer dict to a plain text document for TF-IDF."""
-    parts = [
-        offer.get("title", ""),
-        offer.get("company", ""),
-        offer.get("location", "") or "",
-        " ".join(offer.get("tags") or []),
-        " ".join(offer.get("desired_skills") or []),
-        offer.get("description", "") or "",
-    ]
+    """Convert an offer dict to a plain text document for TF-IDF.
+
+    Title is repeated 3× and tags 2× to boost their weight in the similarity
+    score relative to the longer description text.
+    """
+    title = offer.get("title", "")
+    tags = " ".join(offer.get("tags") or [])
+    skills = " ".join(offer.get("desired_skills") or [])
+    description = offer.get("description", "") or ""
+    company = offer.get("company", "")
+    location = offer.get("location", "") or ""
+
+    parts = (
+        [title] * 3
+        + [tags] * 2
+        + [skills] * 2
+        + [company, location, description]
+    )
     return " ".join(p for p in parts if p)

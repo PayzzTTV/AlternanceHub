@@ -33,6 +33,10 @@ def main() -> None:
     parser.add_argument(
         "--limit", type=int, default=500, help="Max offers to fetch (default 500)"
     )
+    parser.add_argument(
+        "--with-description", action="store_true",
+        help="Only match offers that have a description (better scores)"
+    )
     args = parser.parse_args()
 
     print(f"Extraction du CV : {args.cv}")
@@ -56,6 +60,12 @@ def main() -> None:
     if not offers:
         print("Aucune offre active trouvée.")
         sys.exit(0)
+
+    if args.with_description:
+        offers = [o for o in offers if o.get("description")]
+        if not offers:
+            print("Aucune offre avec description trouvée.")
+            sys.exit(0)
 
     print(f"{len(offers)} offres récupérées. Calcul du matching…")
     offer_texts = [offer_to_text(o) for o in offers]
