@@ -2,6 +2,10 @@ import { render, screen, fireEvent } from '@testing-library/react'
 import OffersGrid from '@/components/OffersGrid'
 import type { Offer } from '@/types/offer'
 
+jest.mock('@/lib/applications', () => ({
+  addApplication: jest.fn(),
+}))
+
 function makeOffer(overrides: Partial<Offer> = {}): Offer {
   return {
     id: Math.random().toString(),
