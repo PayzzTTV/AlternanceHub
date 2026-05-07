@@ -9,6 +9,7 @@ jest.mock('@dnd-kit/core', () => ({
   PointerSensor: class {},
   useSensor: jest.fn(),
   useSensors: jest.fn(() => []),
+  useDroppable: () => ({ setNodeRef: jest.fn(), isOver: false }),
 }))
 jest.mock('@dnd-kit/sortable', () => ({
   SortableContext: ({ children }: { children: React.ReactNode }) => <>{children}</>,
