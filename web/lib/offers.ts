@@ -16,3 +16,15 @@ export async function getOffers(): Promise<Offer[]> {
 
   return (data as Offer[]) ?? []
 }
+
+export async function getOfferById(id: string): Promise<Offer | null> {
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase
+    .from('offers')
+    .select('*')
+    .eq('id', id)
+    .single()
+
+  if (error) return null
+  return data as Offer
+}

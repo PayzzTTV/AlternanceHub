@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { Offer } from '@/types/offer'
 import FollowButton from '@/components/FollowButton'
 
@@ -29,9 +30,11 @@ export default function OfferCard({ offer }: Props) {
     <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-5 shadow flex flex-col gap-3 hover:border-blue-500 transition-colors">
       <div className="flex justify-between items-start gap-2">
         <div>
-          <h3 className="text-base font-semibold text-slate-100 leading-snug">
-            {offer.title}
-          </h3>
+          <Link href={`/offres/${offer.id}`}>
+            <h3 className="text-base font-semibold text-slate-100 leading-snug hover:text-blue-400 transition-colors">
+              {offer.title}
+            </h3>
+          </Link>
           <p className="text-sm text-slate-400 mt-0.5">{offer.company}</p>
         </div>
         <span className="bg-[#1E3A5F] text-[#93C5FD] text-xs font-medium px-2 py-1 rounded shrink-0">
