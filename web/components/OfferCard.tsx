@@ -2,7 +2,7 @@ import Link from 'next/link'
 import type { Offer } from '@/types/offer'
 import FollowButton from '@/components/FollowButton'
 
-type Props = { offer: Offer }
+type Props = { offer: Offer; matchScore?: number }
 
 const TAG_STYLES: Record<string, string> = {
   'cybersécurité': 'bg-[#1E3A5F] text-[#93C5FD]',
@@ -25,7 +25,13 @@ function formatDate(iso: string | null): string {
   })
 }
 
-export default function OfferCard({ offer }: Props) {
+function matchColor(score: number): string {
+  if (score >= 70) return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+  if (score >= 40) return 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+  return 'bg-slate-700/50 text-slate-400 border border-slate-600'
+}
+
+export default function OfferCard({ offer, matchScore }: Props) {
   return (
     <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-5 shadow flex flex-col gap-3 hover:border-blue-500 transition-colors">
       <div className="flex justify-between items-start gap-2">
@@ -37,9 +43,16 @@ export default function OfferCard({ offer }: Props) {
           </Link>
           <p className="text-sm text-slate-400 mt-0.5">{offer.company}</p>
         </div>
-        <span className="bg-[#1E3A5F] text-[#93C5FD] text-xs font-medium px-2 py-1 rounded shrink-0">
-          {offer.source === 'france_travail' ? 'LBA' : offer.source}
-        </span>
+        <div className="flex items-center gap-2 shrink-0">
+          {matchScore !== undefined && (
+            <span className={`text-xs font-bold px-2 py-1 rounded ${matchColor(matchScore)}`}>
+              {matchScore}%
+            </span>
+          )}
+          <span className="bg-[#1E3A5F] text-[#93C5FD] text-xs font-medium px-2 py-1 rounded">
+            {offer.source === 'france_travail' ? 'LBA' : offer.source}
+          </span>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-3 text-sm text-slate-400">

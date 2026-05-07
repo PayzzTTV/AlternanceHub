@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type { Offer } from '@/types/offer'
 import OfferCard from '@/components/OfferCard'
+import { getMatchScores } from '@/components/CVUploader'
 
 const PAGE_SIZE = 12
 
@@ -47,6 +48,14 @@ export default function OffersGrid({ offers }: Props) {
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [publishedAfter, setPublishedAfter] = useState('')
   const [showAdvanced, setShowAdvanced] = useState(false)
+  const [matchScores, setMatchScores] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    setMatchScores(getMatchScores())
+    const handler = () => setMatchScores(getMatchScores())
+    window.addEventListener('match-scores-updated', handler)
+    return () => window.removeEventListener('match-scores-updated', handler)
+  }, [])
   const [page, setPage] = useState(1)
 
   // Options dynamiques depuis les données
@@ -294,7 +303,11 @@ export default function OffersGrid({ offers }: Props) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {paginated.map((offer) => (
-              <OfferCard key={offer.id} offer={offer} />
+              <OfferCard
+                  key={offer.id}
+                  offer={offer}
+                  matchScore={matchScores[offer.id]}
+                />
             ))}
           </div>
         )}

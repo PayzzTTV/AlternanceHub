@@ -1,6 +1,7 @@
 import { getApplications } from '@/lib/applications'
 import KanbanBoard from '@/components/KanbanBoard'
 import NavUser from '@/components/NavUser'
+import CVUploader from '@/components/CVUploader'
 import { createSupabaseServerClient } from '@/lib/supabase'
 import Link from 'next/link'
 
@@ -57,6 +58,10 @@ export default async function SuiviPage() {
               <span className="text-xs text-slate-400 ml-2">Relances urgentes</span>
             </div>
           )}
+        </div>
+
+        <div className="mb-6 max-w-sm">
+          <CVUploader />
         </div>
 
         <KanbanBoard initialApplications={applications} />
