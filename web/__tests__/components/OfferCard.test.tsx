@@ -41,10 +41,9 @@ describe('OfferCard', () => {
     expect(screen.getByText('cybersécurité')).toBeInTheDocument()
   })
 
-  it('CTA link points to source_url', () => {
+  it('CTA ouvre le modal offre', () => {
     render(<OfferCard offer={mockOffer} />)
-    const link = screen.getByRole('link', { name: /voir l/i })
-    expect(link).toHaveAttribute('href', 'https://example.com/offre/1')
+    expect(screen.getByRole('button', { name: /voir l/i })).toBeInTheDocument()
   })
 
   it('affiche le bouton Suivre', () => {

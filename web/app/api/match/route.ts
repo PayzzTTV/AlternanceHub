@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     .limit(500)
 
   if (error || !offers?.length) {
-    return NextResponse.json({ scores: {} })
+    return NextResponse.json({ scores: {}, insights: {} })
   }
 
   const offerDocs = offers.map((o) => ({
@@ -33,6 +33,6 @@ export async function POST(req: NextRequest) {
     ].join(' '),
   }))
 
-  const scores = matchCV(cvText, offerDocs)
-  return NextResponse.json({ scores })
+  const { scores, insights } = matchCV(cvText, offerDocs)
+  return NextResponse.json({ scores, insights })
 }

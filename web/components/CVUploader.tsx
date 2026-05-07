@@ -1,23 +1,27 @@
 'use client'
 
-import { useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback, useEffect } from 'react'
+import Link from 'next/link'
 
-const STORAGE_KEY = 'alternancehub_match_scores'
+const SCORES_KEY = 'alternancehub_match_scores'
+const INSIGHTS_KEY = 'alternancehub_match_insights'
+const CV_TEXT_KEY = 'alternancehub_cv_text'
+const CV_NAME_KEY = 'alternancehub_cv_name'
 
 export function getMatchScores(): Record<string, number> {
   if (typeof window === 'undefined') return {}
-  try {
-    return JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? '{}')
-  } catch {
-    return {}
-  }
+  try { return JSON.parse(localStorage.getItem(SCORES_KEY) ?? '{}') } catch { return {} }
+}
+
+export function getMatchInsights(): Record<string, { strengths: string[]; gaps: string[] }> {
+  if (typeof window === 'undefined') return {}
+  try { return JSON.parse(localStorage.getItem(INSIGHTS_KEY) ?? '{}') } catch { return {} }
 }
 
 async function extractPdfText(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer()
   const pdfjs = await import('pdfjs-dist')
   pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`
-
   const pdf = await pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) }).promise
   const pages: string[] = []
   for (let i = 1; i <= pdf.numPages; i++) {
@@ -28,33 +32,62 @@ async function extractPdfText(file: File): Promise<string> {
   return pages.join('\n')
 }
 
+async function computeScores(cvText: string): Promise<{ scores: Record<string, number>; insights: Record<string, { strengths: string[]; gaps: string[] }> }> {
+  const res = await fetch('/api/match', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ cvText }),
+  })
+  if (!res.ok) throw new Error('api')
+  return res.json()
+}
+
 export default function CVUploader() {
   const inputRef = useRef<HTMLInputElement>(null)
   const [state, setState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [fileName, setFileName] = useState<string | null>(null)
 
+  // On mount: if CV is already saved, recompute scores silently
+  useEffect(() => {
+    const savedText = localStorage.getItem(CV_TEXT_KEY)
+    const savedName = localStorage.getItem(CV_NAME_KEY)
+    const savedScores = localStorage.getItem(SCORES_KEY)
+    if (savedText && savedName) {
+      setFileName(savedName)
+      if (savedScores && Object.keys(JSON.parse(savedScores)).length > 0) {
+        setState('done')
+        window.dispatchEvent(new CustomEvent('match-scores-updated'))
+      } else {
+        // Recompute if scores missing
+        setState('loading')
+        computeScores(savedText)
+          .then(({ scores, insights }) => {
+            localStorage.setItem(SCORES_KEY, JSON.stringify(scores))
+            localStorage.setItem(INSIGHTS_KEY, JSON.stringify(insights))
+            setState('done')
+            window.dispatchEvent(new CustomEvent('match-scores-updated'))
+          })
+          .catch(() => setState('idle'))
+      }
+    }
+  }, [])
+
   const handleFile = useCallback(async (file: File) => {
     setFileName(file.name)
     setState('loading')
-
     try {
-      let cvText: string
-      if (file.name.endsWith('.pdf')) {
-        cvText = await extractPdfText(file)
-      } else {
-        cvText = await file.text()
-      }
+      const cvText = file.name.endsWith('.pdf')
+        ? await extractPdfText(file)
+        : await file.text()
 
       if (!cvText.trim()) throw new Error('empty')
 
-      const res = await fetch('/api/match', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cvText }),
-      })
-      if (!res.ok) throw new Error('api')
-      const { scores } = await res.json()
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(scores))
+      const { scores, insights } = await computeScores(cvText)
+
+      localStorage.setItem(CV_TEXT_KEY, cvText)
+      localStorage.setItem(CV_NAME_KEY, file.name)
+      localStorage.setItem(SCORES_KEY, JSON.stringify(scores))
+      localStorage.setItem(INSIGHTS_KEY, JSON.stringify(insights))
       setState('done')
       window.dispatchEvent(new CustomEvent('match-scores-updated'))
     } catch {
@@ -63,7 +96,10 @@ export default function CVUploader() {
   }, [])
 
   function handleReset() {
-    sessionStorage.removeItem(STORAGE_KEY)
+    localStorage.removeItem(SCORES_KEY)
+    localStorage.removeItem(INSIGHTS_KEY)
+    localStorage.removeItem(CV_TEXT_KEY)
+    localStorage.removeItem(CV_NAME_KEY)
     setFileName(null)
     setState('idle')
     window.dispatchEvent(new CustomEvent('match-scores-updated'))
@@ -75,7 +111,9 @@ export default function CVUploader() {
         <div>
           <p className="text-sm font-semibold text-slate-100">Matching CV</p>
           <p className="text-xs text-slate-400">
-            Upload ton CV pour voir ton score sur chaque offre
+            {state === 'done'
+              ? 'Retourne sur les offres pour voir tes scores'
+              : 'Upload ton CV pour voir ton % de correspondance sur chaque offre'}
           </p>
         </div>
         {state === 'done' && (
@@ -117,17 +155,22 @@ export default function CVUploader() {
             <path className="opacity-75" fill="currentColor"
               d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          Extraction du CV en cours…
+          Calcul en cours…
         </div>
       )}
 
       {state === 'done' && (
-        <div className="flex items-center gap-2 text-sm text-emerald-400">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
-          <span className="truncate max-w-[200px] text-slate-300">{fileName}</span>
-          <span>· scores calculés</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm text-emerald-400">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="truncate max-w-[180px] text-slate-300">{fileName}</span>
+            <span>· actif</span>
+          </div>
+          <Link href="/" className="text-xs text-blue-400 hover:text-blue-300 transition-colors">
+            Voir les offres →
+          </Link>
         </div>
       )}
 

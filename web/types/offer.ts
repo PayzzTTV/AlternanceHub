@@ -13,4 +13,6 @@ export type Offer = {
   published_at: string | null
   scraped_at: string
   is_active: boolean
+  description?: string | null
+  desired_skills?: string[] | null
 }

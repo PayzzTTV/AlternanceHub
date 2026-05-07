@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Application } from '@/types/application'
 import ApplicationModal from '@/components/ApplicationModal'
+import { getMatchScores } from '@/components/CVUploader'
 
 type Props = {
   application: Application
@@ -18,6 +19,19 @@ function isUrgent(dateStr: string | null): boolean {
 
 export default function ApplicationCard({ application, onDelete, onUpdate }: Props) {
   const [modalOpen, setModalOpen] = useState(false)
+  const [matchScore, setMatchScore] = useState<number | undefined>(undefined)
+
+  useEffect(() => {
+    const update = () => {
+      if (application.offer_id) {
+        const scores = getMatchScores()
+        setMatchScore(scores[application.offer_id])
+      }
+    }
+    update()
+    window.addEventListener('match-scores-updated', update)
+    return () => window.removeEventListener('match-scores-updated', update)
+  }, [application.offer_id])
 
   return (
     <>
@@ -26,9 +40,16 @@ export default function ApplicationCard({ application, onDelete, onUpdate }: Pro
         className="bg-[#0F172A] border border-[#334155] rounded-lg p-3 cursor-pointer hover:border-blue-500 transition-colors"
         data-application-id={application.id}
       >
-        <p className="text-sm font-semibold text-slate-100 leading-snug mb-0.5">
-          {application.title}
-        </p>
+        <div className="flex items-start justify-between gap-2 mb-0.5">
+          <p className="text-sm font-semibold text-slate-100 leading-snug">{application.title}</p>
+          {matchScore !== undefined && (
+            <span className={`text-xs font-bold px-1.5 py-0.5 rounded shrink-0 ${
+              matchScore >= 70 ? 'bg-emerald-500/20 text-emerald-400' :
+              matchScore >= 40 ? 'bg-amber-500/20 text-amber-400' :
+              'bg-slate-700 text-slate-400'
+            }`}>{matchScore}%</span>
+          )}
+        </div>
         <p className="text-xs text-slate-400 mb-2">{application.company}</p>
 
         {application.notes && (
