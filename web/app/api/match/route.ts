@@ -12,11 +12,10 @@ export async function POST(req: NextRequest) {
   // Extract text from PDF or plain text
   let cvText = ''
   if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
-    const buffer = Buffer.from(await file.arrayBuffer())
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const pdfParse = require('pdf-parse')
-    const parsed = await pdfParse(buffer)
-    cvText = parsed.text
+    const { extractText } = await import('unpdf')
+    const buffer = await file.arrayBuffer()
+    const { text } = await extractText(new Uint8Array(buffer), { mergePages: true })
+    cvText = typeof text === 'string' ? text : (text as string[]).join('\n')
   } else {
     cvText = await file.text()
   }
