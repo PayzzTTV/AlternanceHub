@@ -1,13 +1,17 @@
 import Link from 'next/link'
 import { getOffers } from '@/lib/offers'
+import { createSupabaseServerClient } from '@/lib/supabase'
 import StatsBar from '@/components/StatsBar'
 import OffersGrid from '@/components/OffersGrid'
+import NavUser from '@/components/NavUser'
 
 export const revalidate = 21600 // 6 heures
 
 export default async function HomePage() {
   const offers = await getOffers()
   const lastScrapedAt = offers[0]?.scraped_at ?? null
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
   return (
     <>
@@ -23,6 +27,16 @@ export default async function HomePage() {
           >
             Suivi
           </Link>
+          {user ? (
+            <NavUser email={user.email ?? ''} />
+          ) : (
+            <Link
+              href="/login"
+              className="text-sm text-slate-400 hover:text-slate-200 border border-[#334155] hover:border-slate-500 rounded-lg px-3 py-1.5 transition-colors"
+            >
+              Connexion
+            </Link>
+          )}
           <span className="bg-blue-500 text-white text-xs font-semibold px-2.5 py-1 rounded-full">
             {offers.length} offres
           </span>
