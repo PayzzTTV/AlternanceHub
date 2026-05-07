@@ -1,0 +1,3 @@
+ALTER TABLE offers
+  ADD COLUMN IF NOT EXISTS description TEXT,
+  ADD COLUMN IF NOT EXISTS desired_skills TEXT[];

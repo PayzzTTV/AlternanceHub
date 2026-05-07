@@ -34,7 +34,10 @@ def fetch_offers(limit: int = 500) -> list[dict]:
         "Accept": "application/json",
     }
     params = {
-        "select": "id,title,company,location,tags,source_url,duration,salary",
+        "select": (
+            "id,title,company,location,tags,"
+            "source_url,duration,salary,description,desired_skills"
+        ),
         "is_active": "eq.true",
         "limit": str(limit),
     }
@@ -55,6 +58,7 @@ def offer_to_text(offer: dict) -> str:
         offer.get("company", ""),
         offer.get("location", "") or "",
         " ".join(offer.get("tags") or []),
-        offer.get("salary", "") or "",
+        " ".join(offer.get("desired_skills") or []),
+        offer.get("description", "") or "",
     ]
     return " ".join(p for p in parts if p)
