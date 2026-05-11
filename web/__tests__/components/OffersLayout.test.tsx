@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import OffersLayout from '@/components/OffersLayout'
 import type { Offer } from '@/types/offer'
+import type { Filters } from '@/lib/filters'
 
 jest.mock('@/components/CVUploader', () => ({
   getMatchScores: jest.fn(() => ({ 'offer-a': 80, 'offer-b': 30 })),
@@ -12,9 +13,15 @@ jest.mock('@/components/FilterSidebar', () => ({
   default: ({
     filters,
     onChange,
+    offers,
+    hasScores,
+    className,
   }: {
-    filters: { query: string }
-    onChange: (f: { query: string }) => void
+    filters: Filters
+    onChange: (f: Filters) => void
+    offers?: unknown[]
+    hasScores?: boolean
+    className?: string
   }) => (
     <div data-testid="filter-sidebar">
       <input
