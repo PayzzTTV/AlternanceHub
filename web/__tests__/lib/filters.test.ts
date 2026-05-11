@@ -56,6 +56,11 @@ describe('applyFilters', () => {
     expect(applyFilters(offers, { ...defaultFilters, duration: '12' })).toHaveLength(1)
   })
 
+  it('exclut les offres avec duration null si filtre durée actif', () => {
+    const offer = makeOffer({ duration: null })
+    expect(applyFilters([offer], { ...defaultFilters, duration: '12' })).toHaveLength(0)
+  })
+
   it('filtre par localisation exacte', () => {
     const offers = [makeOffer({ location: 'Paris' }), makeOffer({ location: 'Lyon' })]
     expect(applyFilters(offers, { ...defaultFilters, location: 'Paris' })).toHaveLength(1)
@@ -77,5 +82,20 @@ describe('applyFilters', () => {
     const result = applyFilters(offers, { ...defaultFilters, location: 'Paris', teletravailOnly: true })
     expect(result).toHaveLength(1)
     expect(result[0].location).toBe('Paris')
+  })
+
+  describe('publishedAfter', () => {
+    it('exclut les offres publiées trop tôt', () => {
+      const recent = makeOffer({ published_at: new Date().toISOString() })
+      const old = makeOffer({
+        published_at: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString(),
+      })
+      expect(applyFilters([recent, old], { ...defaultFilters, publishedAfter: '30' })).toHaveLength(1)
+    })
+
+    it('exclut les offres sans published_at quand publishedAfter est actif', () => {
+      const offer = makeOffer({ published_at: null })
+      expect(applyFilters([offer], { ...defaultFilters, publishedAfter: '7' })).toHaveLength(0)
+    })
   })
 })
