@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 import type { Offer } from '@/types/offer'
 import OfferCard from '@/components/OfferCard'
-import { getMatchScores } from '@/components/CVUploader'
 
 const PAGE_SIZE = 12
 
@@ -26,18 +25,13 @@ function exportCsv(offers: Offer[]) {
   URL.revokeObjectURL(url)
 }
 
-type Props = { offers: Offer[] }
+type Props = {
+  offers: Offer[]
+  matchScores: Record<string, number>
+}
 
-export default function OffersGrid({ offers }: Props) {
+export default function OffersGrid({ offers, matchScores }: Props) {
   const [page, setPage] = useState(1)
-  const [matchScores, setMatchScores] = useState<Record<string, number>>({})
-
-  useEffect(() => {
-    setMatchScores(getMatchScores())
-    const handler = () => setMatchScores(getMatchScores())
-    window.addEventListener('match-scores-updated', handler)
-    return () => window.removeEventListener('match-scores-updated', handler)
-  }, [])
 
   // Remettre à la page 1 quand les offres changent (nouveau filtre appliqué)
   useEffect(() => { setPage(1) }, [offers])

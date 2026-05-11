@@ -2,11 +2,6 @@ import { render, screen } from '@testing-library/react'
 import OffersGrid from '@/components/OffersGrid'
 import type { Offer } from '@/types/offer'
 
-// Les filtres vivent maintenant dans OffersLayout — OffersGrid reçoit des offres déjà filtrées
-jest.mock('@/components/CVUploader', () => ({
-  getMatchScores: jest.fn(() => ({})),
-}))
-
 jest.mock('@/components/OfferCard', () => ({
   __esModule: true,
   default: ({ offer }: { offer: Offer }) => (
@@ -33,23 +28,23 @@ describe('OffersGrid', () => {
       makeOffer({ id: '1', title: 'Offre A' }),
       makeOffer({ id: '2', title: 'Offre B' }),
     ]
-    render(<OffersGrid offers={offers} />)
+    render(<OffersGrid offers={offers} matchScores={{}} />)
     expect(screen.getByText('Offre A')).toBeInTheDocument()
     expect(screen.getByText('Offre B')).toBeInTheDocument()
   })
 
   it("affiche l'état vide quand aucune offre", () => {
-    render(<OffersGrid offers={[]} />)
+    render(<OffersGrid offers={[]} matchScores={{}} />)
     expect(screen.getByText(/aucune offre/i)).toBeInTheDocument()
   })
 
-  it('affiche le nombre d\'offres', () => {
-    render(<OffersGrid offers={[makeOffer(), makeOffer()]} />)
+  it("affiche le nombre d'offres", () => {
+    render(<OffersGrid offers={[makeOffer(), makeOffer()]} matchScores={{}} />)
     expect(screen.getByText(/2 offres/)).toBeInTheDocument()
   })
 
   it('affiche le bouton CSV', () => {
-    render(<OffersGrid offers={[makeOffer()]} />)
+    render(<OffersGrid offers={[makeOffer()]} matchScores={{}} />)
     expect(screen.getByText(/csv/i)).toBeInTheDocument()
   })
 })
