@@ -37,7 +37,8 @@ describe('REGIONS', () => {
     expect(REGIONS).toContain('Auvergne-Rhône-Alpes')
   })
 
-  it('est trié alphabétiquement', () => {
-    expect(REGIONS).toEqual([...REGIONS].sort())
+  it('est trié alphabétiquement (locale fr)', () => {
+    const sorted = [...REGIONS].sort((a, b) => a.localeCompare(b, 'fr'))
+    expect(REGIONS).toEqual(sorted)
   })
 })
