@@ -13,9 +13,6 @@ jest.mock('@/components/FilterSidebar', () => ({
   default: ({
     filters,
     onChange,
-    offers,
-    hasScores,
-    className,
   }: {
     filters: Filters
     onChange: (f: Filters) => void
