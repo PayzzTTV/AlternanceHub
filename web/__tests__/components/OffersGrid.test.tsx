@@ -1,11 +1,10 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import OffersGrid from '@/components/OffersGrid'
 import type { Offer } from '@/types/offer'
 
 // Les filtres vivent maintenant dans OffersLayout — OffersGrid reçoit des offres déjà filtrées
 jest.mock('@/components/CVUploader', () => ({
   getMatchScores: jest.fn(() => ({})),
-  getMatchInsights: jest.fn(() => ({})),
 }))
 
 jest.mock('@/components/OfferCard', () => ({
