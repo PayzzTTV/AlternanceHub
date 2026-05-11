@@ -38,6 +38,7 @@ export default function FilterSidebar({ filters, onChange, offers, hasScores, cl
   )].sort()
 
   const allTags = [...new Set(offers.flatMap((o) => o.tags))].sort().slice(0, 8)
+  const availableSources = [...new Set(offers.map((o) => o.source))]
 
   const hasActive =
     !!filters.query ||
@@ -127,24 +128,26 @@ export default function FilterSidebar({ filters, onChange, offers, hasScores, cl
           <span className="text-sm text-[#94a3b8]">🏠 Télétravail uniquement</span>
         </label>
 
-        {/* Source */}
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-[#475569] uppercase tracking-widest">Source</label>
-          <div className="flex gap-1.5 flex-wrap">
-            <button
-              onClick={() => set('source', '')}
-              className={`${PILL_BASE} ${filters.source === '' ? PILL_ACTIVE : PILL_INACTIVE}`}
-            >
-              Toutes
-            </button>
-            <button
-              onClick={() => set('source', 'france_travail')}
-              className={`${PILL_BASE} ${filters.source === 'france_travail' ? PILL_ACTIVE : PILL_INACTIVE}`}
-            >
-              LBA
-            </button>
+        {/* Source — visible seulement si plusieurs sources */}
+        {availableSources.length > 1 && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs text-[#475569] uppercase tracking-widest">Source</label>
+            <div className="flex gap-1.5 flex-wrap">
+              <button
+                onClick={() => set('source', '')}
+                className={`${PILL_BASE} ${filters.source === '' ? PILL_ACTIVE : PILL_INACTIVE}`}
+              >
+                Toutes
+              </button>
+              <button
+                onClick={() => set('source', 'france_travail')}
+                className={`${PILL_BASE} ${filters.source === 'france_travail' ? PILL_ACTIVE : PILL_INACTIVE}`}
+              >
+                LBA
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Score — visible seulement si CV chargé */}
         {hasScores && (

@@ -21,7 +21,7 @@ export function getMatchInsights(): Record<string, { strengths: string[]; gaps: 
 async function extractPdfText(file: File): Promise<string> {
   const arrayBuffer = await file.arrayBuffer()
   const pdfjs = await import('pdfjs-dist')
-  pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`
+  pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs'
   const pdf = await pdfjs.getDocument({ data: new Uint8Array(arrayBuffer) }).promise
   const pages: string[] = []
   for (let i = 1; i <= pdf.numPages; i++) {
@@ -88,7 +88,8 @@ export default function CVUploader() {
       localStorage.setItem(INSIGHTS_KEY, JSON.stringify(insights))
       setState('done')
       window.dispatchEvent(new CustomEvent('match-scores-updated'))
-    } catch {
+    } catch (err) {
+      console.error('[CVUploader] analyse failed:', err)
       setState('error')
     }
   }, [])
