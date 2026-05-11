@@ -3,11 +3,13 @@
 import type { Filters } from '@/lib/filters'
 import { defaultFilters } from '@/lib/filters'
 import type { Offer } from '@/types/offer'
+import { cityToRegion } from '@/lib/regions'
 
 type Props = {
   filters: Filters
   onChange: (f: Filters) => void
   offers: Offer[]
+  hasScores: boolean
   className?: string
 }
 
@@ -20,16 +22,32 @@ const PUBLISHED_OPTIONS: { label: string; value: Filters['publishedAfter'] }[] =
   { label: '3 mois', value: '90' },
 ]
 
-export default function FilterSidebar({ filters, onChange, offers, className = '' }: Props) {
-  const allLocations = [...new Set(offers.map((o) => o.location).filter(Boolean) as string[])].sort()
+const SCORE_OPTIONS = [
+  { label: 'Tous', value: 0 },
+  { label: '40%+', value: 40 },
+  { label: '70%+', value: 70 },
+]
+
+const PILL_BASE = 'px-2.5 py-1 rounded-lg text-xs border transition-colors'
+const PILL_ACTIVE = 'bg-[#1e1e2e] border-[#312e81] text-[#818cf8] font-medium'
+const PILL_INACTIVE = 'bg-[#16161f] border-[#2a2a3d] text-[#475569] hover:border-[#4f46e5]'
+
+export default function FilterSidebar({ filters, onChange, offers, hasScores, className = '' }: Props) {
+  const availableRegions = [...new Set(
+    offers.map((o) => cityToRegion(o.location) ?? 'Autre')
+  )].sort()
+
   const allTags = [...new Set(offers.flatMap((o) => o.tags))].sort().slice(0, 8)
+
   const hasActive =
-    filters.query ||
+    !!filters.query ||
     filters.teletravailOnly ||
-    filters.duration ||
-    filters.location ||
+    !!filters.duration ||
+    !!filters.region ||
+    !!filters.source ||
+    filters.minScore > 0 ||
     filters.selectedTags.length > 0 ||
-    filters.publishedAfter
+    !!filters.publishedAfter
 
   function set<K extends keyof Filters>(key: K, value: Filters[K]) {
     onChange({ ...filters, [key]: value })
@@ -67,17 +85,17 @@ export default function FilterSidebar({ filters, onChange, offers, className = '
           className="w-full bg-[#16161f] border border-[#2a2a3d] rounded-lg px-3 py-2 text-sm text-[#e2e8f0] placeholder-[#475569] outline-none focus:border-[#4f46e5] transition-colors"
         />
 
-        {/* Localisation */}
+        {/* Région */}
         <div className="flex flex-col gap-1.5">
-          <label className="text-xs text-[#475569] uppercase tracking-widest">Localisation</label>
+          <label className="text-xs text-[#475569] uppercase tracking-widest">Région</label>
           <select
-            value={filters.location}
-            onChange={(e) => set('location', e.target.value)}
+            value={filters.region}
+            onChange={(e) => set('region', e.target.value)}
             className="bg-[#16161f] border border-[#2a2a3d] rounded-lg px-3 py-2 text-sm text-[#94a3b8] outline-none focus:border-[#4f46e5] transition-colors"
           >
-            <option value="">Toutes les villes</option>
-            {allLocations.map((loc) => (
-              <option key={loc} value={loc}>{loc}</option>
+            <option value="">Toutes les régions</option>
+            {availableRegions.map((r) => (
+              <option key={r} value={r}>{r}</option>
             ))}
           </select>
         </div>
@@ -90,11 +108,7 @@ export default function FilterSidebar({ filters, onChange, offers, className = '
               <button
                 key={d || 'all'}
                 onClick={() => set('duration', d)}
-                className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${
-                  filters.duration === d
-                    ? 'bg-[#1e1e2e] border-[#312e81] text-[#818cf8] font-medium'
-                    : 'bg-[#16161f] border-[#2a2a3d] text-[#475569] hover:border-[#4f46e5]'
-                }`}
+                className={`${PILL_BASE} ${filters.duration === d ? PILL_ACTIVE : PILL_INACTIVE}`}
               >
                 {d ? `${d} mois` : 'Toutes'}
               </button>
@@ -113,6 +127,43 @@ export default function FilterSidebar({ filters, onChange, offers, className = '
           <span className="text-sm text-[#94a3b8]">🏠 Télétravail uniquement</span>
         </label>
 
+        {/* Source */}
+        <div className="flex flex-col gap-1.5">
+          <label className="text-xs text-[#475569] uppercase tracking-widest">Source</label>
+          <div className="flex gap-1.5 flex-wrap">
+            <button
+              onClick={() => set('source', '')}
+              className={`${PILL_BASE} ${filters.source === '' ? PILL_ACTIVE : PILL_INACTIVE}`}
+            >
+              Toutes
+            </button>
+            <button
+              onClick={() => set('source', 'france_travail')}
+              className={`${PILL_BASE} ${filters.source === 'france_travail' ? PILL_ACTIVE : PILL_INACTIVE}`}
+            >
+              LBA
+            </button>
+          </div>
+        </div>
+
+        {/* Score — visible seulement si CV chargé */}
+        {hasScores && (
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs text-[#475569] uppercase tracking-widest">Score min</label>
+            <div className="flex gap-1.5 flex-wrap">
+              {SCORE_OPTIONS.map(({ label, value }) => (
+                <button
+                  key={value}
+                  onClick={() => set('minScore', value)}
+                  className={`${PILL_BASE} ${filters.minScore === value ? PILL_ACTIVE : PILL_INACTIVE}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Date de publication */}
         <div className="flex flex-col gap-1.5">
           <label className="text-xs text-[#475569] uppercase tracking-widest">Publiée dans</label>
@@ -121,11 +172,7 @@ export default function FilterSidebar({ filters, onChange, offers, className = '
               <button
                 key={value || 'all'}
                 onClick={() => set('publishedAfter', value)}
-                className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${
-                  filters.publishedAfter === value
-                    ? 'bg-[#1e1e2e] border-[#312e81] text-[#818cf8] font-medium'
-                    : 'bg-[#16161f] border-[#2a2a3d] text-[#475569] hover:border-[#4f46e5]'
-                }`}
+                className={`${PILL_BASE} ${filters.publishedAfter === value ? PILL_ACTIVE : PILL_INACTIVE}`}
               >
                 {label}
               </button>
@@ -142,11 +189,7 @@ export default function FilterSidebar({ filters, onChange, offers, className = '
                 <button
                   key={tag}
                   onClick={() => toggleTag(tag)}
-                  className={`px-2.5 py-1 rounded-lg text-xs border transition-colors ${
-                    filters.selectedTags.includes(tag)
-                      ? 'bg-[#1e1e2e] border-[#312e81] text-[#818cf8] font-medium'
-                      : 'bg-[#16161f] border-[#2a2a3d] text-[#475569] hover:border-[#4f46e5]'
-                  }`}
+                  className={`${PILL_BASE} ${filters.selectedTags.includes(tag) ? PILL_ACTIVE : PILL_INACTIVE}`}
                 >
                   {tag}
                 </button>
@@ -173,8 +216,12 @@ export function FilterChips({ filters, onChange, className = '' }: ChipsProps) {
     chips.push({ label: '🏠 Télétravail', clear: { ...filters, teletravailOnly: false } })
   if (filters.duration)
     chips.push({ label: `${filters.duration} mois`, clear: { ...filters, duration: '' } })
-  if (filters.location)
-    chips.push({ label: `📍 ${filters.location}`, clear: { ...filters, location: '' } })
+  if (filters.region)
+    chips.push({ label: `📍 ${filters.region}`, clear: { ...filters, region: '' } })
+  if (filters.source)
+    chips.push({ label: filters.source === 'france_travail' ? 'LBA' : filters.source, clear: { ...filters, source: '' } })
+  if (filters.minScore)
+    chips.push({ label: `≥ ${filters.minScore}%`, clear: { ...filters, minScore: 0 } })
   if (filters.publishedAfter)
     chips.push({ label: `Derniers ${filters.publishedAfter}j`, clear: { ...filters, publishedAfter: '' } })
   filters.selectedTags.forEach((tag) =>

@@ -1,16 +1,27 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import OffersLayout from '@/components/OffersLayout'
 import type { Offer } from '@/types/offer'
+import type { Filters } from '@/lib/filters'
 
-// Mocks — on isole OffersLayout de ses enfants
+jest.mock('@/components/CVUploader', () => ({
+  getMatchScores: jest.fn(() => ({ 'offer-a': 80, 'offer-b': 30 })),
+  getMatchInsights: jest.fn(() => ({})),
+}))
+
 jest.mock('@/components/FilterSidebar', () => ({
   __esModule: true,
   default: ({
     filters,
     onChange,
+    offers,
+    hasScores,
+    className,
   }: {
-    filters: { query: string }
-    onChange: (f: { query: string }) => void
+    filters: Filters
+    onChange: (f: Filters) => void
+    offers?: unknown[]
+    hasScores?: boolean
+    className?: string
   }) => (
     <div data-testid="filter-sidebar">
       <input
@@ -25,28 +36,19 @@ jest.mock('@/components/FilterSidebar', () => ({
 
 jest.mock('@/components/OffersGrid', () => ({
   __esModule: true,
-  default: ({ offers }: { offers: Offer[] }) => (
-    <div data-testid="offers-grid">{offers.length} offres</div>
+  default: ({ offers, matchScores }: { offers: Offer[]; matchScores: Record<string, number> }) => (
+    <div data-testid="offers-grid" data-scores={Object.keys(matchScores).length}>
+      {offers.length} offres
+    </div>
   ),
 }))
 
 function makeOffer(overrides: Partial<Offer> = {}): Offer {
   return {
-    id: Math.random().toString(),
-    hash: '',
-    title: 'Analyste SOC',
-    company: 'DINUM',
-    location: 'Paris',
-    contract_type: 'alternance',
-    duration: '12',
-    salary: null,
-    tags: ['cybersécurité'],
-    source: 'france_travail',
-    source_url: 'https://example.com',
-    published_at: null,
-    scraped_at: new Date().toISOString(),
-    is_active: true,
-    ...overrides,
+    id: Math.random().toString(), hash: '', title: 'Analyste SOC', company: 'DINUM',
+    location: 'Paris', contract_type: 'alternance', duration: '12', salary: null,
+    tags: ['cybersécurité'], source: 'france_travail', source_url: 'https://example.com',
+    published_at: null, scraped_at: new Date().toISOString(), is_active: true, ...overrides,
   }
 }
 
@@ -70,5 +72,11 @@ describe('OffersLayout', () => {
     render(<OffersLayout offers={offers} />)
     fireEvent.change(screen.getByTestId('sidebar-query'), { target: { value: 'SOC' } })
     expect(screen.getByText('1 offres')).toBeInTheDocument()
+  })
+
+  it('passe matchScores à OffersGrid', () => {
+    render(<OffersLayout offers={[makeOffer({ id: 'offer-a' }), makeOffer({ id: 'offer-b' })]} />)
+    // getMatchScores mocké retourne { 'offer-a': 80, 'offer-b': 30 } soit 2 scores
+    expect(screen.getByTestId('offers-grid').dataset.scores).toBe('2')
   })
 })

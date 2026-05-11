@@ -61,9 +61,28 @@ describe('applyFilters', () => {
     expect(applyFilters([offer], { ...defaultFilters, duration: '12' })).toHaveLength(0)
   })
 
-  it('filtre par localisation exacte', () => {
-    const offers = [makeOffer({ location: 'Paris' }), makeOffer({ location: 'Lyon' })]
-    expect(applyFilters(offers, { ...defaultFilters, location: 'Paris' })).toHaveLength(1)
+  it('filtre par région — Île-de-France inclut Paris', () => {
+    const offers = [
+      makeOffer({ location: 'Paris' }),
+      makeOffer({ location: 'Lyon' }),
+    ]
+    expect(applyFilters(offers, { ...defaultFilters, region: 'Île-de-France' })).toHaveLength(1)
+  })
+
+  it('filtre par région Autre — villes inconnues uniquement', () => {
+    const offers = [
+      makeOffer({ location: 'Atlantis' }),
+      makeOffer({ location: 'Paris' }),
+    ]
+    expect(applyFilters(offers, { ...defaultFilters, region: 'Autre' })).toHaveLength(1)
+  })
+
+  it('filtre par source', () => {
+    const offers = [
+      makeOffer({ source: 'france_travail' }),
+      makeOffer({ source: 'hellowork' }),
+    ]
+    expect(applyFilters(offers, { ...defaultFilters, source: 'france_travail' })).toHaveLength(1)
   })
 
   it('filtre par tags — tous les tags sélectionnés doivent être présents', () => {
@@ -79,7 +98,7 @@ describe('applyFilters', () => {
       makeOffer({ title: 'SOC', location: 'Paris', duration: '12', tags: ['Télétravail'] }),
       makeOffer({ title: 'SOC', location: 'Lyon', duration: '12', tags: [] }),
     ]
-    const result = applyFilters(offers, { ...defaultFilters, location: 'Paris', teletravailOnly: true })
+    const result = applyFilters(offers, { ...defaultFilters, region: 'Île-de-France', teletravailOnly: true })
     expect(result).toHaveLength(1)
     expect(result[0].location).toBe('Paris')
   })
