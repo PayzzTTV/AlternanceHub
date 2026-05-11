@@ -188,9 +188,9 @@ export function FilterChips({ filters, onChange, className = '' }: ChipsProps) {
 
   return (
     <div className={`flex gap-2 overflow-x-auto py-2 ${className}`}>
-      {chips.map((chip, i) => (
+      {chips.map((chip) => (
         <button
-          key={i}
+          key={chip.label}
           onClick={() => onChange(chip.clear)}
           className="flex-shrink-0 flex items-center gap-1 bg-[#1e1e2e] border border-[#312e81] text-[#818cf8] text-xs px-2.5 py-1 rounded-full whitespace-nowrap hover:border-[#6366f1] transition-colors"
         >
