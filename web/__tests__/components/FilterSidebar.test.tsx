@@ -32,8 +32,19 @@ describe('FilterSidebar', () => {
     expect(screen.getAllByText(/télétravail/i).length).toBeGreaterThan(0)
   })
 
-  it('affiche la section source', () => {
-    render(<FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={baseOffers} hasScores={false} />)
+  it('affiche la section source uniquement si plusieurs sources', () => {
+    const multiSourceOffers = [
+      makeOffer({ location: 'Paris', source: 'france_travail' }),
+      makeOffer({ location: 'Lyon', source: 'hellowork' }),
+    ]
+    const { rerender } = render(
+      <FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={baseOffers} hasScores={false} />
+    )
+    expect(screen.queryByText(/source/i)).not.toBeInTheDocument()
+
+    rerender(
+      <FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={multiSourceOffers} hasScores={false} />
+    )
     expect(screen.getByText(/source/i)).toBeInTheDocument()
   })
 
