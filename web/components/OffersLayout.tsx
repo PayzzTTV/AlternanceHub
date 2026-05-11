@@ -1,17 +1,36 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import type { Offer } from '@/types/offer'
 import FilterSidebar, { FilterChips } from '@/components/FilterSidebar'
 import OffersGrid from '@/components/OffersGrid'
 import { defaultFilters, applyFilters, type Filters } from '@/lib/filters'
+import { getMatchScores } from '@/components/CVUploader'
 
 type Props = { offers: Offer[] }
 
 export default function OffersLayout({ offers }: Props) {
   const [filters, setFilters] = useState<Filters>(defaultFilters)
   const [showMobileFilters, setShowMobileFilters] = useState(false)
+  const [matchScores, setMatchScores] = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    setMatchScores(getMatchScores())
+    const handler = () => setMatchScores(getMatchScores())
+    window.addEventListener('match-scores-updated', handler)
+    return () => window.removeEventListener('match-scores-updated', handler)
+  }, [])
+
   const filteredOffers = useMemo(() => applyFilters(offers, filters), [offers, filters])
+  const scoredOffers = useMemo(
+    () =>
+      filters.minScore === 0
+        ? filteredOffers
+        : filteredOffers.filter((o) => (matchScores[o.id] ?? 0) >= filters.minScore),
+    [filteredOffers, filters.minScore, matchScores]
+  )
+
+  const hasScores = Object.keys(matchScores).length > 0
 
   return (
     <div className="flex h-[calc(100vh-56px)]">
@@ -20,6 +39,7 @@ export default function OffersLayout({ offers }: Props) {
         filters={filters}
         onChange={setFilters}
         offers={offers}
+        hasScores={hasScores}
         className="hidden md:flex md:w-60 md:border-r md:border-[#1e1e2e]"
       />
 
@@ -54,12 +74,13 @@ export default function OffersLayout({ offers }: Props) {
               filters={filters}
               onChange={setFilters}
               offers={offers}
+              hasScores={hasScores}
               className="flex w-full border-t border-[#1e1e2e] max-h-[60vh] overflow-y-auto"
             />
           )}
         </div>
 
-        <OffersGrid offers={filteredOffers} />
+        <OffersGrid offers={scoredOffers} matchScores={matchScores} />
       </main>
     </div>
   )
