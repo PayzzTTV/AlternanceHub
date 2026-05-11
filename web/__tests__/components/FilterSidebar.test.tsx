@@ -12,39 +12,59 @@ function makeOffer(overrides: Partial<Offer> = {}): Offer {
   }
 }
 
-const baseOffers = [makeOffer({ location: 'Paris' }), makeOffer({ location: 'Lyon' })]
+const baseOffers = [
+  makeOffer({ location: 'Paris' }),
+  makeOffer({ location: 'Lyon' }),
+]
 
 describe('FilterSidebar', () => {
   beforeEach(() => jest.clearAllMocks())
 
   it('affiche le champ de recherche', () => {
-    render(<FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={baseOffers} />)
+    render(<FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={baseOffers} hasScores={false} />)
     expect(screen.getByPlaceholderText(/titre, entreprise/i)).toBeInTheDocument()
   })
 
-  it('affiche les sections Localisation, Durée, Télétravail', () => {
-    render(<FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={baseOffers} />)
-    expect(screen.getByText(/localisation/i)).toBeInTheDocument()
-    expect(screen.getByText(/durée/i)).toBeInTheDocument()
-    expect(screen.getByText(/télétravail/i)).toBeInTheDocument()
+  it('affiche les sections Région, Durée, Télétravail', () => {
+    render(<FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={baseOffers} hasScores={false} />)
+    expect(screen.getAllByText(/région/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/durée/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/télétravail/i).length).toBeGreaterThan(0)
+  })
+
+  it('affiche la section source', () => {
+    render(<FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={baseOffers} hasScores={false} />)
+    expect(screen.getByText(/source/i)).toBeInTheDocument()
+  })
+
+  it('affiche la section score uniquement si hasScores=true', () => {
+    const { rerender } = render(
+      <FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={baseOffers} hasScores={false} />
+    )
+    expect(screen.queryByText(/score/i)).not.toBeInTheDocument()
+
+    rerender(
+      <FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={baseOffers} hasScores={true} />
+    )
+    expect(screen.getByText(/score/i)).toBeInTheDocument()
   })
 
   it('appelle onChange quand la query change', () => {
     const onChange = jest.fn()
-    render(<FilterSidebar filters={defaultFilters} onChange={onChange} offers={baseOffers} />)
+    render(<FilterSidebar filters={defaultFilters} onChange={onChange} offers={baseOffers} hasScores={false} />)
     fireEvent.change(screen.getByPlaceholderText(/titre, entreprise/i), { target: { value: 'SOC' } })
     expect(onChange).toHaveBeenCalledWith({ ...defaultFilters, query: 'SOC' })
   })
 
   it('appelle onChange quand le toggle télétravail est cliqué', () => {
     const onChange = jest.fn()
-    render(<FilterSidebar filters={defaultFilters} onChange={onChange} offers={baseOffers} />)
+    render(<FilterSidebar filters={defaultFilters} onChange={onChange} offers={baseOffers} hasScores={false} />)
     fireEvent.click(screen.getByRole('checkbox'))
     expect(onChange).toHaveBeenCalledWith({ ...defaultFilters, teletravailOnly: true })
   })
 
   it("n'affiche pas Réinitialiser si aucun filtre actif", () => {
-    render(<FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={baseOffers} />)
+    render(<FilterSidebar filters={defaultFilters} onChange={jest.fn()} offers={baseOffers} hasScores={false} />)
     expect(screen.queryByText('Réinitialiser')).not.toBeInTheDocument()
   })
 
@@ -54,6 +74,7 @@ describe('FilterSidebar', () => {
         filters={{ ...defaultFilters, query: 'test' }}
         onChange={jest.fn()}
         offers={baseOffers}
+        hasScores={false}
       />
     )
     expect(screen.getByText('Réinitialiser')).toBeInTheDocument()
@@ -66,6 +87,7 @@ describe('FilterSidebar', () => {
         filters={{ ...defaultFilters, query: 'test', teletravailOnly: true }}
         onChange={onChange}
         offers={baseOffers}
+        hasScores={false}
       />
     )
     fireEvent.click(screen.getByText('Réinitialiser'))
@@ -79,6 +101,7 @@ describe('FilterSidebar', () => {
         filters={defaultFilters}
         onChange={onChange}
         offers={[makeOffer({ tags: ['SOC'] })]}
+        hasScores={false}
       />
     )
     fireEvent.click(screen.getByText('SOC'))
@@ -100,6 +123,21 @@ describe('FilterChips', () => {
   it('affiche un chip pour la durée active', () => {
     render(<FilterChips filters={{ ...defaultFilters, duration: '12' }} onChange={jest.fn()} />)
     expect(screen.getByText(/12 mois/i)).toBeInTheDocument()
+  })
+
+  it('affiche un chip pour la région active', () => {
+    render(<FilterChips filters={{ ...defaultFilters, region: 'Île-de-France' }} onChange={jest.fn()} />)
+    expect(screen.getByText(/Île-de-France/i)).toBeInTheDocument()
+  })
+
+  it('affiche un chip pour la source active', () => {
+    render(<FilterChips filters={{ ...defaultFilters, source: 'france_travail' }} onChange={jest.fn()} />)
+    expect(screen.getByText('LBA')).toBeInTheDocument()
+  })
+
+  it('affiche un chip pour le score minimum actif', () => {
+    render(<FilterChips filters={{ ...defaultFilters, minScore: 70 }} onChange={jest.fn()} />)
+    expect(screen.getByText(/≥ 70%/i)).toBeInTheDocument()
   })
 
   it('appelle onChange pour désactiver le filtre au clic sur le chip', () => {
