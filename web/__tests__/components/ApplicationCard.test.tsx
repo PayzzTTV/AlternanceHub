@@ -48,14 +48,14 @@ describe('ApplicationCard', () => {
   })
 
   it('la date de relance est orange si dans les 3 jours', () => {
-    render(<ApplicationCard application={{ ...base, follow_up_date: '2026-05-08' }} onDelete={onDelete} onUpdate={onUpdate} />)
-    const dateEl = screen.getByText(/2026-05-08/)
+    render(<ApplicationCard application={{ ...base, follow_up_date: '2026-05-12' }} onDelete={onDelete} onUpdate={onUpdate} />)
+    const dateEl = screen.getByText(/⏰/)
     expect(dateEl).toHaveClass('text-amber-400')
   })
 
   it('la date de relance est grise si plus de 3 jours', () => {
     render(<ApplicationCard application={{ ...base, follow_up_date: '2026-06-01' }} onDelete={onDelete} onUpdate={onUpdate} />)
-    const dateEl = screen.getByText(/2026-06-01/)
+    const dateEl = screen.getByText(/⏰/)
     expect(dateEl).toHaveClass('text-white/35')
   })
 
